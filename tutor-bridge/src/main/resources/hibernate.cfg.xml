@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- JDBC Database connection settings -->
+        <property name="hibernate.connection.driver_class">oracle.jdbc.OracleDriver</property>
+        <property name="hibernate.connection.url">jdbc:oracle:thin:@dbmanage.lab.ii.agh.edu.pl:1521:DBMANAGE</property>
+        <property name="hibernate.connection.username">BD_415271</property>
+        <property name="hibernate.connection.password">Piotrek234</property>
+
+        <!-- Specify dialect -->
+        <property name="hibernate.dialect">org.hibernate.dialect.Oracle12cDialect</property>
+        <!-- Oracle12cDialect is suitable for Oracle 12c and later, including Oracle 19c -->
+
+        <!-- Enable Hibernate's automatic session context management -->
+        <property name="hibernate.current_session_context_class">thread</property>
+
+        <!-- Disable the second-level cache  -->
+        <property name="hibernate.cache.use_second_level_cache">false</property>
+        <property name="hibernate.cache.use_query_cache">false</property>
+
+        <!-- Echo all executed SQL to stdout -->
+        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.format_sql">true</property>
+
+        <!-- Drop and re-create the database schema on startup -->
+        <property name="hibernate.hbm2ddl.auto">update</property>
+        <!-- Other options: validate | update | create | create-drop -->
+
+        <!-- Mention all entity classes -->
+        <!-- Add more entities here -->
+        <mapping class="org.tutorBridge.entities.User"/>
+        <mapping class="org.tutorBridge.entities.Student"/>
+        <mapping class="org.tutorBridge.entities.Tutor"/>
+        <mapping class="org.tutorBridge.entities.Specialization"/>
+        <mapping class="org.tutorBridge.entities.Absence"/>
+        <mapping class="org.tutorBridge.entities.Availability"/>
+        <mapping class="org.tutorBridge.entities.Reservation"/>
+
+
+    </session-factory>
+</hibernate-configuration>
