@@ -22,8 +22,10 @@ public class Main {
 //        findAllTutors(session);
 //        findAllSpecializations(session);
 //        findAllAbsences(session);
-//        findAllAvail(session);
-        findAllReservations(session);
+        findAllAvail(session);
+//        findAllReservations(session);
+
+//        addNewStudent(session);
 
         transaction.commit();
         System.out.println("SUCCESS");
@@ -77,7 +79,7 @@ public class Main {
         TypedQuery<Availability> query = session.createQuery("from Availability", Availability.class);
         List<Availability> list = query.getResultList();
         for (Availability a : list) {
-            System.out.println(a.getDate() + " " + a.getTutor().getFirstName() + " " + a.getEndMinute());
+            System.out.println(a.getDate() + " " + a.getTutor().getFirstName() + " " + a.getStartTime().getHour());
         }
 
     }
@@ -88,7 +90,7 @@ public class Main {
         List<Reservation> list = query.getResultList();
 
         for (Reservation r : list) {
-            builder.append(r.getStatus()).append(" ").append(r.getStudent().getFirstName()).append(" ").append(r.getTutor().getFirstName()).append(" ").append(r.getStartHour());
+            builder.append(r.getStatus()).append(" ").append(r.getStudent().getFirstName()).append(" ").append(r.getTutor().getFirstName()).append(" ").append(r.getStartTime().getHour());
             builder.append("\n");
         }
 
@@ -99,17 +101,33 @@ public class Main {
 
 
     private static void addNewUser(Session session) {
-        User u = new User(
-                "John",
-                "Doe",
+        addNewStudent(session);
+
+//        User u = new User(
+//                "John",
+//                "Doe",
+//                "123456789",
+//                "johndoe@gmail.com",
+//                "Password123",
+//                UserType.STUDENT,
+//                LocalDate.of(2000, 1, 4)
+//        );
+
+//        session.persist(u);
+    }
+
+    private static void addNewStudent(Session session) {
+        Student s = new Student(
+                "Adam",
+                "Smith",
                 "123456789",
-                "johndoe@gmail.com",
-                "Password123",
-                UserType.STUDENT,
+                "bob@gmail.com",
+                "password",
+                "C1",
                 LocalDate.of(2000, 1, 4)
         );
 
-        session.persist(u);
+        session.persist(s);
     }
 
 

@@ -3,11 +3,11 @@ package org.tutorBridge.entities;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "AVAILABILITY")
 public class Availability {
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "availability_seq")
     @SequenceGenerator(name = "availability_seq", sequenceName = "BD_415271.AVAILABILITY_ID_SEQ", allocationSize = 1)
@@ -24,26 +24,27 @@ public class Availability {
     @Column(name = "STARTHOUR", nullable = false)
     private int startHour;
 
+    @Column(name = "STARTMINUTE", nullable = false)
+    private int startMinute;
+
+
     @Column(name = "ENDHOUR", nullable = false)
     private int endHour;
-
-    @Column(name = "STARTMINUTE")
-    private Integer startMinute;
-
-    @Column(name = "ENDMINUTE")
-    private Integer endMinute;
+    @Column(name = "ENDMINUTE", nullable = false)
+    private int endMinute;
 
     public Availability() {
     }
 
-
+    public Availability(Tutor tutor, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        this.tutor = tutor;
+        this.date = date;
+        this.setStartTime(startTime);
+        this.setEndTime(endTime);
+    }
 
     public Long getAvailabilityId() {
         return availabilityId;
-    }
-
-    public void setAvailabilityId(Long availabilityId) {
-        this.availabilityId = availabilityId;
     }
 
     public Tutor getTutor() {
@@ -58,40 +59,25 @@ public class Availability {
         return date;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setStartTime() {
+
     }
 
-    public int getStartHour() {
-        return startHour;
+    public void setStartTime(LocalTime time) {
+        this.startHour = time.getHour();
+        this.startMinute = time.getMinute();
     }
 
-    public void setStartHour(int startHour) {
-        this.startHour = startHour;
+    public void setEndTime(LocalTime time) {
+        this.endHour = time.getHour();
+        this.endMinute = time.getMinute();
     }
 
-    public int getEndHour() {
-        return endHour;
+    public LocalTime getStartTime() {
+        return LocalTime.of(startHour, startMinute);
     }
-
-    public void setEndHour(int endHour) {
-        this.endHour = endHour;
-    }
-
-    public Integer getStartMinute() {
-        return startMinute;
-    }
-
-    public void setStartMinute(Integer startMinute) {
-        this.startMinute = startMinute;
-    }
-
-    public Integer getEndMinute() {
-        return endMinute;
-    }
-
-    public void setEndMinute(Integer endMinute) {
-        this.endMinute = endMinute;
+    public LocalTime getEndTime() {
+        return LocalTime.of(endHour, endMinute);
     }
 }
 

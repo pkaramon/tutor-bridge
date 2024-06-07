@@ -34,7 +34,13 @@ public class Tutor extends User {
     public Tutor() {
     }
 
-    public Tutor(String firstName, String lastName, String phone, String email, String password, String bio, LocalDate birthDate) {
+    public Tutor(String firstName,
+                 String lastName,
+                 String phone,
+                 String email,
+                 String password,
+                 String bio,
+                 LocalDate birthDate) {
         super(firstName, lastName, phone, email, password, UserType.STUDENT, birthDate);
         this.bio = bio;
     }
@@ -47,39 +53,33 @@ public class Tutor extends User {
         this.bio = bio;
     }
 
-
     public Set<Specialization> getSpecializations() {
         return specializations;
     }
 
-    public void setSpecializations(Set<Specialization> specializations) {
-        this.specializations = specializations;
+    public void addSpecialization(Specialization specialization) {
+        specializations.add(specialization);
     }
 
     public Set<Absence> getAbsences() {
         return absences;
     }
 
-    public void setAbsences(Set<Absence> absences) {
-        this.absences = absences;
-    }
 
+    public void addAbsence(Absence absence) {
+        absences.add(absence);
+    }
 
     public Set<Availability> getAvailabilities() {
         return availabilities;
     }
 
-    public void setAvailabilities(Set<Availability> availabilities) {
-        this.availabilities = availabilities;
+    public void addAvailability(Availability availability) {
+        availabilities.add(availability);
     }
 
     public Set<Reservation> getReservations() {
         return reservations;
     }
-
-    public void setReservations(Set<Reservation> reservations) {
-        this.reservations = reservations;
-    }
-
 
 }

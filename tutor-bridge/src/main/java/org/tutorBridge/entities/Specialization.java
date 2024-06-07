@@ -35,10 +35,6 @@ public class Specialization {
         return specializationId;
     }
 
-    public void setSpecializationId(Long specializationId) {
-        this.specializationId = specializationId;
-    }
-
     public String getName() {
         return name;
     }
@@ -50,9 +46,4 @@ public class Specialization {
     public Set<Tutor> getTutors() {
         return tutors;
     }
-
-    public void setTutors(Set<Tutor> tutors) {
-        this.tutors = tutors;
-    }
-
 }

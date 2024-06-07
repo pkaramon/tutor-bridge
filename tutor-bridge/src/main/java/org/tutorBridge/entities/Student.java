@@ -16,11 +16,16 @@ public class Student extends User {
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Reservation> reservations = new HashSet<>();
 
-
     public Student() {
     }
 
-    public Student(String firstName, String lastName, String phone, String email, String password, String level, LocalDate birthDate) {
+    public Student(String firstName,
+                   String lastName,
+                   String phone,
+                   String email,
+                   String password,
+                   String level,
+                   LocalDate birthDate) {
         super(firstName, lastName, phone, email, password, UserType.STUDENT, birthDate);
         this.level = level;
     }
@@ -37,9 +42,13 @@ public class Student extends User {
         return reservations;
     }
 
-    public void setReservations(Set<Reservation> reservations) {
-        this.reservations = reservations;
+    public void addReservation(Reservation reservation) {
+        reservations.add(reservation);
+        reservation.setStudent(this);
     }
 
-
+    public void removeReservation(Reservation reservation) {
+        reservations.remove(reservation);
+        reservation.setStudent(null);
+    }
 }
