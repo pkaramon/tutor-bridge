@@ -1,6 +1,7 @@
 package org.tutorBridge.entities;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,6 +15,7 @@ public class Specialization {
     @Column(name = "SPECIALIZATIONID", nullable = false)
     private Long specializationId;
 
+    @NotBlank(message = "Specialization name is required")
     @Column(name = "NAME", nullable = false, length = 200)
     private String name;
 

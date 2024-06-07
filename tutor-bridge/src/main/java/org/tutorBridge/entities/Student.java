@@ -1,6 +1,7 @@
 package org.tutorBridge.entities;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,6 +11,7 @@ import java.util.Set;
 @PrimaryKeyJoinColumn(name = "STUDENTID", referencedColumnName = "USERID")
 
 public class Student extends User {
+    @NotBlank(message = "Level is required")
     @Column(name = "\"level\"", nullable = false, length = 100)
     private String level;
 

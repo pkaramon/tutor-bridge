@@ -1,7 +1,14 @@
 package org.tutorBridge.entities;
 
+import org.tutorBridge.validation.ValidPhoneNumber;
+
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
 import java.time.LocalDate;
+
 
 @Entity
 @Table(name = "\"USER\"")
@@ -14,18 +21,25 @@ public abstract class User {
     @Column(name = "USERID", nullable = false)
     private Long userId;
 
+    @NotBlank(message = "First name is required")
     @Column(name = "FIRSTNAME", nullable = false, length = 100)
     private String firstName;
 
+    @NotBlank(message = "Last name is required")
     @Column(name = "LASTNAME", nullable = false, length = 100)
     private String lastName;
 
+    @NotBlank(message = "Phone number is required")
+    @ValidPhoneNumber
     @Column(name = "PHONE", nullable = false, length = 20)
     private String phone;
 
+    @Email(message = "Email must be valid")
     @Column(name = "EMAIL", nullable = false, length = 100)
     private String email;
 
+
+    @NotBlank(message = "Password is required")
     @Column(name = "PASSWORD", nullable = false, length = 1024)
     private String password;
 
@@ -33,13 +47,12 @@ public abstract class User {
     @Column(name = "TYPE", nullable = false, length = 100)
     private UserType type;
 
-
-
+    @NotNull(message = "Birthdate is required")
+    @Past(message = "Birthdate must be in the past")
     @Column(name = "BIRTHDATE", nullable = false)
     private LocalDate birthDate;
 
     public User(String firstName, String lastName, String phone, String email, String password, UserType type, LocalDate birthDate) {
-        this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.phone = phone;
@@ -85,10 +98,6 @@ public abstract class User {
 
     public String getEmail() {
         return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getPassword() {

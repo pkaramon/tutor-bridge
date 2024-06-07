@@ -1,6 +1,7 @@
 package org.tutorBridge.entities;
 
 import javax.persistence.*;
+import javax.validation.constraints.Positive;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -26,9 +27,11 @@ public class Reservation {
     @JoinColumn(name = "SPECIALIZATIONID", nullable = false)
     private Specialization specialization;
 
+    @Positive
     @Column(name = "STARTHOUR", nullable = false)
     private int startHour;
 
+    @Positive
     @Column(name = "ENDHOUR", nullable = false)
     private int endHour;
 
