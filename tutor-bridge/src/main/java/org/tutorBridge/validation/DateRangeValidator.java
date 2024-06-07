@@ -1,8 +1,9 @@
 package org.tutorBridge.validation;
 
+import org.tutorBridge.entities.Absence;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import org.tutorBridge.entities.Absence;
 
 public class DateRangeValidator implements ConstraintValidator<ValidDateRange, Absence> {
 

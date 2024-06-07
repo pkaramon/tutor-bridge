@@ -2,7 +2,7 @@ package org.tutorBridge.validation;
 
 import java.util.Collection;
 
-public class ValidationException extends RuntimeException{
+public class ValidationException extends RuntimeException {
     private final Collection<String> messages;
 
     public ValidationException(Collection<String> messages) {

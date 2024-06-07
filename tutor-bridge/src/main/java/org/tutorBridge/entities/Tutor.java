@@ -20,7 +20,7 @@ public class Tutor extends User {
             joinColumns = @JoinColumn(name = "TUTORID"),
             inverseJoinColumns = @JoinColumn(name = "SPECIALIZATIONID")
     )
-    private Set<Specialization> specializations = new HashSet<>();
+    private final Set<Specialization> specializations = new HashSet<>();
 
     @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Absence> absences = new HashSet<>();

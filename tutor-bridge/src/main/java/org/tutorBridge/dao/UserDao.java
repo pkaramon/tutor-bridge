@@ -6,7 +6,7 @@ import org.tutorBridge.entities.User;
 import javax.persistence.TypedQuery;
 import java.util.Optional;
 
-public class UserDao extends GenericDao<User, Long>{
+public class UserDao extends GenericDao<User, Long> {
     public UserDao() {
         super(User.class);
     }

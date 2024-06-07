@@ -9,6 +9,8 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidTimeRange {
     String message() default "Invalid time range";
+
     Class<?>[] groups() default {};
+
     Class<?>[] payload() default {};
 }

@@ -62,7 +62,8 @@ public abstract class User {
         this.birthDate = birthDate;
     }
 
-    public User() {}
+    public User() {
+    }
 
     public Long getUserId() {
         return userId;

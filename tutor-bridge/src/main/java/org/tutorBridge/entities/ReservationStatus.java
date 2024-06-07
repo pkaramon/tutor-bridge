@@ -11,10 +11,6 @@ public enum ReservationStatus {
         this.code = code;
     }
 
-    char getCode() {
-        return code;
-    }
-
     public static ReservationStatus fromCode(char code) {
         return switch (code) {
             case 'A' -> ACCEPTED;
@@ -22,5 +18,9 @@ public enum ReservationStatus {
             case 'N' -> NEW;
             default -> throw new IllegalArgumentException("Unknown code: " + code);
         };
+    }
+
+    char getCode() {
+        return code;
     }
 }

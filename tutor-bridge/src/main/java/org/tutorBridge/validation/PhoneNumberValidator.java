@@ -9,7 +9,7 @@ public class PhoneNumberValidator implements ConstraintValidator<ValidPhoneNumbe
 
     @Override
     public boolean isValid(String phone, ConstraintValidatorContext context) {
-        if(phone == null) {
+        if (phone == null) {
             return false;
         }
 

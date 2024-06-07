@@ -78,21 +78,22 @@ public class Availability {
 
     }
 
+    public LocalTime getStartTime() {
+        return LocalTime.of(startHour, startMinute);
+    }
+
     public void setStartTime(LocalTime time) {
         this.startHour = time.getHour();
         this.startMinute = time.getMinute();
     }
 
+    public LocalTime getEndTime() {
+        return LocalTime.of(endHour, endMinute);
+    }
+
     public void setEndTime(LocalTime time) {
         this.endHour = time.getHour();
         this.endMinute = time.getMinute();
-    }
-
-    public LocalTime getStartTime() {
-        return LocalTime.of(startHour, startMinute);
-    }
-    public LocalTime getEndTime() {
-        return LocalTime.of(endHour, endMinute);
     }
 }
 

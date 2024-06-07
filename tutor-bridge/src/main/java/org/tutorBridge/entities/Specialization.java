@@ -21,7 +21,7 @@ public class Specialization {
 
 
     @ManyToMany(mappedBy = "specializations")
-    private Set<Tutor> tutors = new HashSet<>();
+    private final Set<Tutor> tutors = new HashSet<>();
 
 
     public Specialization() {

@@ -49,7 +49,8 @@ public class Reservation {
     private ReservationStatus status;
 
 
-    public Reservation() { }
+    public Reservation() {
+    }
 
     public Reservation(Student student, Tutor tutor, Specialization specialization, LocalTime startTime, LocalTime endTime, LocalDate date) {
         this.student = student;
@@ -92,22 +93,22 @@ public class Reservation {
         return startHour;
     }
 
+    public LocalTime getStartTime() {
+        return LocalTime.of(startHour, startMinute);
+    }
 
     public void setStartTime(LocalTime time) {
         this.startHour = time.getHour();
         this.startMinute = time.getMinute();
     }
-    public void setEndTime(LocalTime time) {
-        this.endHour = time.getHour();
-        this.endMinute = time.getMinute();
-    }
-
-    public LocalTime getStartTime() {
-        return LocalTime.of(startHour, startMinute);
-    }
 
     public LocalTime getEndTime() {
         return LocalTime.of(endHour, endMinute);
+    }
+
+    public void setEndTime(LocalTime time) {
+        this.endHour = time.getHour();
+        this.endMinute = time.getMinute();
     }
 
     public LocalDate getDate() {
