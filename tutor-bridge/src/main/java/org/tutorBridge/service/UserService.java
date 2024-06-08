@@ -9,7 +9,7 @@ import javax.validation.ConstraintViolation;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class UserService<T extends User>  extends AbstractService{
+public abstract class UserService<T extends User> extends AbstractService{
     private final UserDao userDao = new UserDao();
 
     public void registerUser(T user) {
@@ -17,8 +17,6 @@ public abstract class UserService<T extends User>  extends AbstractService{
         if (userWithSameEmailExists) {
             throw new ValidationException(List.of("User with the same email already exists"));
         }
-
-        validateEntity(user);
 
         user.setPassword(PasswordManager.hashPassword(user.getPassword()));
         saveUser(user);

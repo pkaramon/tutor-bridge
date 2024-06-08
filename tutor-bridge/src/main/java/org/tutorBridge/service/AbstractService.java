@@ -1,5 +1,8 @@
 package org.tutorBridge.service;
 
+import org.hibernate.Session;
+import org.tutorBridge.config.HibernateUtil;
+
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.ValidationException;
@@ -28,5 +31,9 @@ public abstract class AbstractService {
                             .map(ConstraintViolation::getMessage)
                             .collect(Collectors.joining()));
         }
+    }
+
+    protected Session openSession() {
+        return HibernateUtil.getSessionFactory().openSession();
     }
 }

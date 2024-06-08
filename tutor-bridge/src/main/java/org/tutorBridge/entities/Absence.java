@@ -1,14 +1,13 @@
 package org.tutorBridge.entities;
 
 
-import org.tutorBridge.validation.ValidDateRange;
+import org.tutorBridge.validation.ValidAbsenceRange;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@ValidDateRange
+@ValidAbsenceRange
 @Table(name = "ABSENCE")
 public class Absence {
     @Id

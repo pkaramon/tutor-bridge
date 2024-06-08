@@ -5,10 +5,10 @@ import javax.validation.Payload;
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = DateRangeValidator.class)
+@Constraint(validatedBy = AbsenceRangeValidator.class)
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ValidDateRange {
+public @interface ValidAbsenceRange {
     String message() default "Invalid date range: start date must be before end date";
 
     Class<?>[] groups() default {};

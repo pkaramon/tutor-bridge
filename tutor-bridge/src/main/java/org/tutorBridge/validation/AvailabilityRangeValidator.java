@@ -5,7 +5,7 @@ import org.tutorBridge.entities.Availability;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class TimeRangeValidator implements ConstraintValidator<ValidTimeRange, Availability> {
+public class AvailabilityRangeValidator implements ConstraintValidator<ValidAvailabilityRange, Availability> {
     @Override
     public boolean isValid(Availability availability, ConstraintValidatorContext constraintValidatorContext) {
         if (availability == null) {

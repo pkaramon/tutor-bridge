@@ -5,10 +5,10 @@ import org.tutorBridge.entities.Absence;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class DateRangeValidator implements ConstraintValidator<ValidDateRange, Absence> {
+public class AbsenceRangeValidator implements ConstraintValidator<ValidAbsenceRange, Absence> {
 
     @Override
-    public void initialize(ValidDateRange constraintAnnotation) {
+    public void initialize(ValidAbsenceRange constraintAnnotation) {
     }
 
     @Override

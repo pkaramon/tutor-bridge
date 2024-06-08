@@ -4,10 +4,10 @@ import javax.validation.Constraint;
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = TimeRangeValidator.class)
+@Constraint(validatedBy = AvailabilityRangeValidator.class)
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ValidTimeRange {
+public @interface ValidAvailabilityRange {
     String message() default "Invalid time range";
 
     Class<?>[] groups() default {};

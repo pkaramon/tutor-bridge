@@ -1,14 +1,14 @@
 package org.tutorBridge.entities;
 
 
-import org.tutorBridge.validation.ValidTimeRange;
+import org.tutorBridge.validation.ValidAvailabilityRange;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity
-@ValidTimeRange
+@ValidAvailabilityRange
 @Table(name = "AVAILABILITY")
 public class Availability {
     @Id
