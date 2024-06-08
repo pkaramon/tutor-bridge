@@ -24,6 +24,11 @@ public class GenericDao<T, ID extends Serializable> {
         this.validator = factory.getValidator();
     }
 
+    public void save(T entity, Session session) {
+        validateEntity(entity);
+        session.save(entity);
+    }
+
     public void save(T entity) {
         validateEntity(entity);
         Transaction transaction = null;
@@ -38,15 +43,7 @@ public class GenericDao<T, ID extends Serializable> {
             e.printStackTrace();
         }
     }
-    public void save(T entity, Session session) {
-        validateEntity(entity);
-        session.save(entity);
-    }
 
-    public void update(T entity, Session session) {
-        validateEntity(entity);
-        session.update(entity);
-    }
 
     public Optional<T> findById(ID id) {
         try (Session session = openSession()) {
@@ -58,6 +55,11 @@ public class GenericDao<T, ID extends Serializable> {
         try (Session session = openSession()) {
             return session.createQuery("from " + entityClass.getName(), entityClass).list();
         }
+    }
+
+    public void update(T entity, Session session) {
+        validateEntity(entity);
+        session.update(entity);
     }
 
     public void update(T entity) {
@@ -73,6 +75,10 @@ public class GenericDao<T, ID extends Serializable> {
             }
             e.printStackTrace();
         }
+    }
+
+    public void delete(T entity, Session session) {
+        session.delete(entity);
     }
 
     public void delete(T entity) {

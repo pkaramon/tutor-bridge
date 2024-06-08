@@ -27,30 +27,32 @@ public class TutorService extends UserService<Tutor> {
         tutorDao.update(tutor);
     }
 
+
+
+
     public void addWeeklyAvailability(Tutor tutor, Map<DayOfWeek, List<TimeRange>> weeklyTimeRanges, int weeksInAdvance) {
         LocalDate startDate = LocalDate.now();
         LocalDate endDate = startDate.plusWeeks(weeksInAdvance);
-        List<Availability> existingAvailabilities = tutorDao.fetchAvailabilities(tutor, startDate, endDate);
 
         try (var session = openSession()) {
             Transaction transaction = session.beginTransaction();
             try {
+                var existingSlots = tutorDao.fetchAvailabilities(tutor, startDate, endDate, session);
                 for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
                     DayOfWeek dayOfWeek = date.getDayOfWeek();
                     List<TimeRange> timeRanges = weeklyTimeRanges.getOrDefault(dayOfWeek, List.of());
                     for (TimeRange timeRange : timeRanges) {
-                        createNewAvailabilityFromTimeRange(tutor, timeRange, date, existingAvailabilities, session);
+                        createNewAvailabilityFromTimeRange(tutor, timeRange, date, existingSlots, session);
                     }
                 }
                 transaction.commit();
             } catch (Exception e) {
-                if (transaction != null) {
-                    transaction.rollback();
-                }
+                transaction.rollback();
                 throw e;
             }
         }
     }
+
 
     private void createNewAvailabilityFromTimeRange(Tutor tutor, TimeRange timeRange, LocalDate date,
                                                     List<Availability> existingAvailabilities,
@@ -79,33 +81,20 @@ public class TutorService extends UserService<Tutor> {
     }
 
 
-    public void addOneTimeAvailability(Tutor tutor, LocalDateTime start, LocalDateTime end) {
+    public void addOneTimeAvailability(Tutor tutor, LocalDateTime start, LocalDateTime end, Session session) {
         if (start.isAfter(end)) {
             throw new ValidationException("Start time must be before end time");
         }
 
-        checkIfTutorHasConflictingAvailability(tutor, start, end);
+        checkForAvailabilityConflicts(tutor, start, end, session);
         var availability = new Availability(tutor, start, end);
         validateEntity(availability);
         availabilityDao.save(availability);
     }
 
-    private void checkIfTutorHasConflictingAvailability(Tutor tutor, LocalDateTime start, LocalDateTime end) {
-        try (var session = openSession()) {
-            var query = session.createQuery(
-                    "SELECT COUNT(*) FROM Availability a " +
-                            "WHERE a.tutor = :tutor AND " +
-                            "a.startDateTime <= :end AND a.endDateTime >= :start",
-                    Long.class
-            );
-
-            query.setParameter("tutor", tutor);
-            query.setParameter("start", start);
-            query.setParameter("end", end);
-
-            if (query.getSingleResult() > 0) {
-                throw new ValidationException("Tutor already has an availability that conflicts with this one");
-            }
+    private void checkForAvailabilityConflicts(Tutor tutor, LocalDateTime start, LocalDateTime end, Session session) {
+        if (tutorDao.hasTutorConflictingAvailability(tutor, start, end, session)) {
+            throw new ValidationException("Tutor already has an availability that conflicts with this one");
         }
     }
 
