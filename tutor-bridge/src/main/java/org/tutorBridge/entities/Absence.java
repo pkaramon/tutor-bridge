@@ -5,6 +5,7 @@ import org.tutorBridge.validation.ValidDateRange;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @ValidDateRange
@@ -21,15 +22,15 @@ public class Absence {
     private Tutor tutor;
 
     @Column(name = "STARTDATE", nullable = false)
-    private LocalDate startDate;
+    private LocalDateTime startDate;
 
     @Column(name = "ENDDATE", nullable = false)
-    private LocalDate endDate;
+    private LocalDateTime endDate;
 
     public Absence() {
     }
 
-    public Absence(Tutor tutor, LocalDate startDate, LocalDate endDate) {
+    public Absence(Tutor tutor, LocalDateTime startDate, LocalDateTime endDate) {
         this.tutor = tutor;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -43,11 +44,11 @@ public class Absence {
         return tutor;
     }
 
-    public LocalDate getStartDate() {
+    public LocalDateTime getStartDate() {
         return startDate;
     }
 
-    public LocalDate getEndDate() {
+    public LocalDateTime getEndDate() {
         return endDate;
     }
 

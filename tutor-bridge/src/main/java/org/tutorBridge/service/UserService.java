@@ -24,6 +24,7 @@ public abstract class UserService<T extends User>  extends AbstractService{
         saveUser(user);
     }
 
+
     protected abstract void saveUser(T user);
 }
 

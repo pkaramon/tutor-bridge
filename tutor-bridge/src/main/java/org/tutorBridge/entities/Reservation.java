@@ -1,9 +1,8 @@
 package org.tutorBridge.entities;
 
 import javax.persistence.*;
-import javax.validation.constraints.Positive;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "RESERVATION")
@@ -27,38 +26,25 @@ public class Reservation {
     @JoinColumn(name = "SPECIALIZATIONID", nullable = false)
     private Specialization specialization;
 
-    @Positive
-    @Column(name = "STARTHOUR", nullable = false)
-    private int startHour;
+    @NotNull(message = "Start time is required")
+    @Column(name = "STARTDATE", nullable = false)
+    private LocalDateTime startDateTime;
 
-    @Positive
-    @Column(name = "ENDHOUR", nullable = false)
-    private int endHour;
+    @NotNull(message = "End time is required")
+    @Column(name = "ENDDATE", nullable = false)
+    private LocalDateTime endDateTime;
 
-    @Column(name = "STARTMINUTE", nullable = false)
-    private int startMinute;
-
-    @Column(name = "ENDMINUTE", nullable = false)
-    private int endMinute;
-
-    @Column(name = "\"DATE\"", nullable = false)
-    private LocalDate date;
-
-    @Convert(converter = ReservationStatusConverter.class)
-    @Column(name = "STATUS", length = 1, nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "STATUS", length = 10, nullable = false)
     private ReservationStatus status;
+    public Reservation() {}
 
-
-    public Reservation() {
-    }
-
-    public Reservation(Student student, Tutor tutor, Specialization specialization, LocalTime startTime, LocalTime endTime, LocalDate date) {
+    public Reservation(Student student, Tutor tutor, Specialization specialization, LocalDateTime start, LocalDateTime end) {
         this.student = student;
         this.tutor = tutor;
         this.specialization = specialization;
-        this.setStartTime(startTime);
-        this.setEndTime(endTime);
-        this.date = date;
+        this.startDateTime = start;
+        this.endDateTime = end;
         this.status = ReservationStatus.NEW;
     }
 
@@ -85,38 +71,28 @@ public class Reservation {
     }
 
 
+    public LocalDateTime getStartDateTime() {
+        return startDateTime;
+    }
+
+    public void setStartDateTime(LocalDateTime startDateTime) {
+        this.startDateTime = startDateTime;
+    }
+
+    public LocalDateTime getEndDateTime() {
+        return endDateTime;
+    }
+
+    public void setEndDateTime(LocalDateTime endDateTime) {
+        this.endDateTime = endDateTime;
+    }
+
     public Specialization getSpecialization() {
         return specialization;
     }
 
-    public int getStartHour() {
-        return startHour;
-    }
-
-    public LocalTime getStartTime() {
-        return LocalTime.of(startHour, startMinute);
-    }
-
-    public void setStartTime(LocalTime time) {
-        this.startHour = time.getHour();
-        this.startMinute = time.getMinute();
-    }
-
-    public LocalTime getEndTime() {
-        return LocalTime.of(endHour, endMinute);
-    }
-
-    public void setEndTime(LocalTime time) {
-        this.endHour = time.getHour();
-        this.endMinute = time.getMinute();
-    }
-
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setSpecialization(Specialization specialization) {
+        this.specialization = specialization;
     }
 
     public ReservationStatus getStatus() {

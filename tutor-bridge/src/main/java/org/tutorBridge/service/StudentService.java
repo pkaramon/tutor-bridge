@@ -11,8 +11,15 @@ public class StudentService extends UserService<Student> {
         registerUser(student);
     }
 
+    public void updateStudent(Student student) {
+        validateEntity(student);
+        studentDao.update(student);
+    }
+
+
     @Override
     protected void saveUser(Student stuent) {
         studentDao.save(stuent);
     }
+
 }

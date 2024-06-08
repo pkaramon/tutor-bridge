@@ -11,9 +11,9 @@ import java.util.Set;
 @PrimaryKeyJoinColumn(name = "STUDENTID", referencedColumnName = "USERID")
 
 public class Student extends User {
-    @NotBlank(message = "Level is required")
+    @Enumerated(EnumType.STRING)
     @Column(name = "\"level\"", nullable = false, length = 100)
-    private String level;
+    private StudentLevel level;
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Reservation> reservations = new HashSet<>();
@@ -26,17 +26,17 @@ public class Student extends User {
                    String phone,
                    String email,
                    String password,
-                   String level,
+                   StudentLevel level,
                    LocalDate birthDate) {
         super(firstName, lastName, phone, email, password, UserType.STUDENT, birthDate);
         this.level = level;
     }
 
-    public String getLevel() {
+    public StudentLevel getLevel() {
         return level;
     }
 
-    public void setLevel(String level) {
+    public void setLevel(StudentLevel level) {
         this.level = level;
     }
 

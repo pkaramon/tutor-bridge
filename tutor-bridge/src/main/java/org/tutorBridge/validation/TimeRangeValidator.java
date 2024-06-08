@@ -11,9 +11,6 @@ public class TimeRangeValidator implements ConstraintValidator<ValidTimeRange, A
         if (availability == null) {
             return false;
         }
-        if (availability.getStartTime() == null || availability.getEndTime() == null) {
-            return false;
-        }
-        return availability.getStartTime().isBefore(availability.getEndTime());
+        return availability.getStartDateTime().isBefore(availability.getEndDateTime());
     }
 }

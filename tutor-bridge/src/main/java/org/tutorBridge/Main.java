@@ -1,44 +1,28 @@
 package org.tutorBridge;
 
-import org.tutorBridge.entities.Tutor;
-import org.tutorBridge.service.TutorService;
-import org.tutorBridge.validation.ValidationException;
+import org.tutorBridge.dao.StudentDao;
+import org.tutorBridge.entities.Student;
+import org.tutorBridge.entities.StudentLevel;
+import org.tutorBridge.service.StudentService;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class Main {
     public static void main(String[] args) {
-//        StudentService studentService = new StudentService();
-//
-//        Student s = new Student(
-//                "John",
-//                "Doe",
-//                "1234567890",
-//                "johndoe321321321@gmail.com",
-//                "password123",
-//                "High School",
-//                LocalDate.of(2000, 1, 1)
-//        );
-//
-//        studentService.registerStudent(s);
+        StudentService studentService = new StudentService();
 
+        Student s = new Student(
+                "John",
+                "DoeDoe",
+                "123123123",
+                "johndoedoe@gmail.com",
+                "password",
+                StudentLevel.UNIVERSITY,
+                LocalDate.of(1999, 1, 1)
+        );
 
-        TutorService tutorService = new TutorService();
-        Tutor t = new Tutor(
-                "Jane",
-                "Smith",
-                "0987654321",
-                "easdfasf@asdfas",
-                "password123",
-                "bio",
-                LocalDate.of(2000, 1, 1));
-
-        try {
-
-            tutorService.registerTutor(t);
-        } catch(ValidationException e) {
-            System.out.println(e.getMessages());
-        }
+        studentService.registerStudent(s);
 
 
 

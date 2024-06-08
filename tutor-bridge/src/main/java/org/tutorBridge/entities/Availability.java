@@ -4,10 +4,8 @@ package org.tutorBridge.entities;
 import org.tutorBridge.validation.ValidTimeRange;
 
 import javax.persistence.*;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 @Entity
 @ValidTimeRange
@@ -23,39 +21,23 @@ public class Availability {
     @JoinColumn(name = "TUTORID", nullable = false)
     private Tutor tutor;
 
-    @Column(name = "\"DATE\"", nullable = false)
-    private LocalDate date;
+    @NotNull(message = "Start date is required")
+    @Column(name = "STARTDATE", nullable = false)
+    private LocalDateTime startDateTime;
 
 
-    @Min(value = 0, message = "Hour must be between 0 and 23")
-    @Max(value = 0, message = "Hour must be between 0 and 23")
-    @Column(name = "STARTHOUR", nullable = false)
-    private int startHour;
+    @NotNull(message = "End date is required")
+    @Column(name = "ENDDATE", nullable = false)
+    private LocalDateTime endDateTime;
 
-    @Min(value = 0, message = "Minute must be between 0 and 59")
-    @Max(value = 59, message = "Minute must be between 0 and 59")
-    @Column(name = "STARTMINUTE", nullable = false)
-    private int startMinute;
-
-
-    @Min(value = 0, message = "Hour must be between 0 and 23")
-    @Max(value = 0, message = "Hour must be between 0 and 23")
-    @Column(name = "ENDHOUR", nullable = false)
-    private int endHour;
-
-    @Min(value = 0, message = "Minute must be between 0 and 59")
-    @Max(value = 59, message = "Minute must be between 0 and 59")
-    @Column(name = "ENDMINUTE", nullable = false)
-    private int endMinute;
 
     public Availability() {
     }
 
-    public Availability(Tutor tutor, LocalDate date, LocalTime startTime, LocalTime endTime) {
+    public Availability(Tutor tutor, LocalDateTime start, LocalDateTime end) {
         this.tutor = tutor;
-        this.date = date;
-        this.setStartTime(startTime);
-        this.setEndTime(endTime);
+        this.startDateTime = start;
+        this.endDateTime = end;
     }
 
     public Long getAvailabilityId() {
@@ -70,30 +52,21 @@ public class Availability {
         this.tutor = tutor;
     }
 
-    public LocalDate getDate() {
-        return date;
+
+    public LocalDateTime getStartDateTime() {
+        return startDateTime;
     }
 
-    public void setStartTime() {
-
+    public void setStartDateTime(LocalDateTime startDateTime) {
+        this.startDateTime = startDateTime;
     }
 
-    public LocalTime getStartTime() {
-        return LocalTime.of(startHour, startMinute);
+    public LocalDateTime getEndDateTime() {
+        return endDateTime;
     }
 
-    public void setStartTime(LocalTime time) {
-        this.startHour = time.getHour();
-        this.startMinute = time.getMinute();
-    }
-
-    public LocalTime getEndTime() {
-        return LocalTime.of(endHour, endMinute);
-    }
-
-    public void setEndTime(LocalTime time) {
-        this.endHour = time.getHour();
-        this.endMinute = time.getMinute();
+    public void setEndDateTime(LocalDateTime endDateTime) {
+        this.endDateTime = endDateTime;
     }
 }
 
