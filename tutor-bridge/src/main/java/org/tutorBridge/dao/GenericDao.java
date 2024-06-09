@@ -1,11 +1,10 @@
 package org.tutorBridge.dao;
 
-import org.tutorBridge.config.DB;
-
 import jakarta.persistence.EntityManager;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import org.tutorBridge.config.DB;
 import org.tutorBridge.validation.ValidationException;
 
 import java.io.Serializable;
@@ -34,12 +33,12 @@ public class GenericDao<T, ID extends Serializable> {
         DB.inTransaction(em -> em.persist(entity));
     }
 
-    public Optional<T> findById(ID id) {
-        return DB.withEntityManger(em -> Optional.ofNullable(em.find(entityClass, id)));
+    public Optional<T> findById(ID id, EntityManager em) {
+        return Optional.ofNullable(em.find(entityClass, id));
     }
 
-    public List<T> findAll() {
-        return DB.withEntityManger(em -> em.createQuery("from " + entityClass.getName(), entityClass).getResultList());
+    public List<T> findAll(EntityManager em) {
+        return em.createQuery("from " + entityClass.getName(), entityClass).getResultList();
     }
 
     public void update(T entity, EntityManager entityManager) {
