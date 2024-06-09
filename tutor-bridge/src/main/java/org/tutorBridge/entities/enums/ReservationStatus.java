@@ -1,4 +1,4 @@
-package org.tutorBridge.entities;
+package org.tutorBridge.entities.enums;
 
 public enum ReservationStatus {
     ACCEPTED,

@@ -1,13 +1,13 @@
 package org.tutorBridge.dao;
 
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.tutorBridge.config.HibernateUtil;
+import org.tutorBridge.config.DB;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.ValidationException;
-import javax.validation.Validator;
+import jakarta.persistence.EntityManager;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import org.tutorBridge.validation.ValidationException;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
@@ -24,94 +24,49 @@ public class GenericDao<T, ID extends Serializable> {
         this.validator = factory.getValidator();
     }
 
-    public void save(T entity, Session session) {
+    public void save(T entity, EntityManager entityManager) {
         validateEntity(entity);
-        session.save(entity);
+        entityManager.persist(entity);
     }
 
     public void save(T entity) {
         validateEntity(entity);
-        Transaction transaction = null;
-        try (Session session = openSession()) {
-            transaction = session.beginTransaction();
-            session.save(entity);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        }
+        DB.inTransaction(em -> em.persist(entity));
     }
 
-
     public Optional<T> findById(ID id) {
-        try (Session session = openSession()) {
-            return Optional.ofNullable(session.get(entityClass, id));
-        }
+        return DB.withEntityManger(em -> Optional.ofNullable(em.find(entityClass, id)));
     }
 
     public List<T> findAll() {
-        try (Session session = openSession()) {
-            return session.createQuery("from " + entityClass.getName(), entityClass).list();
-        }
+        return DB.withEntityManger(em -> em.createQuery("from " + entityClass.getName(), entityClass).getResultList());
     }
 
-    public void update(T entity, Session session) {
+    public void update(T entity, EntityManager entityManager) {
         validateEntity(entity);
-        session.update(entity);
+        entityManager.merge(entity);
     }
 
     public void update(T entity) {
         validateEntity(entity);
-        Transaction transaction = null;
-        try (Session session = openSession()) {
-            transaction = session.beginTransaction();
-            session.update(entity);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        }
+        DB.inTransaction(em -> em.merge(entity));
     }
 
-    public void delete(T entity, Session session) {
-        session.delete(entity);
+    public void delete(T entity, EntityManager entityManager) {
+        entityManager.remove(entity);
     }
 
     public void delete(T entity) {
-        Transaction transaction = null;
-        try (Session session = openSession()) {
-            transaction = session.beginTransaction();
-            session.delete(entity);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        }
-    }
-
-    protected Session openSession() {
-        return HibernateUtil.getSessionFactory().openSession();
-    }
-
-
-    protected Validator getValidator() {
-        return validator;
+        DB.inTransaction(em -> em.remove(entity));
     }
 
     protected void validateEntity(Object entity) {
         var violations = validator.validate(entity);
         if (!violations.isEmpty()) {
-            throw new ValidationException(
-                    violations
-                            .stream()
-                            .map(ConstraintViolation::getMessage)
-                            .collect(Collectors.joining()));
+            throw new ValidationException(violations.stream()
+                    .map(ConstraintViolation::getMessage)
+                    .collect(Collectors.joining()));
         }
     }
+
 }

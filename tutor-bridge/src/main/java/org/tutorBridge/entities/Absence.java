@@ -3,7 +3,7 @@ package org.tutorBridge.entities;
 
 import org.tutorBridge.validation.ValidAbsenceRange;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity

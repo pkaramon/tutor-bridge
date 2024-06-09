@@ -1,7 +1,9 @@
 package org.tutorBridge.entities;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import org.tutorBridge.entities.enums.ReservationStatus;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity

@@ -1,6 +1,8 @@
 package org.tutorBridge.entities;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+import org.tutorBridge.entities.enums.UserType;
+
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,10 +12,6 @@ import java.util.Set;
 @PrimaryKeyJoinColumn(name = "TUTORID", referencedColumnName = "USERID")
 public class Tutor extends User {
 
-    @Lob
-    @Column(name = "BIO", nullable = false)
-    private String bio;
-
     @ManyToMany
     @JoinTable(
             name = "TUTORSPECIALIZATIONS",
@@ -21,7 +19,9 @@ public class Tutor extends User {
             inverseJoinColumns = @JoinColumn(name = "SPECIALIZATIONID")
     )
     private final Set<Specialization> specializations = new HashSet<>();
-
+    @Lob
+    @Column(name = "BIO", nullable = false)
+    private String bio;
     @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Absence> absences = new HashSet<>();
 

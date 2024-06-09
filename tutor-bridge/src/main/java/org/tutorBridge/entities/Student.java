@@ -1,7 +1,9 @@
 package org.tutorBridge.entities;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
+import org.tutorBridge.entities.enums.StudentLevel;
+import org.tutorBridge.entities.enums.UserType;
+
+import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -9,7 +11,6 @@ import java.util.Set;
 @Entity
 @Table(name = "STUDENT")
 @PrimaryKeyJoinColumn(name = "STUDENTID", referencedColumnName = "USERID")
-
 public class Student extends User {
     @Enumerated(EnumType.STRING)
     @Column(name = "\"level\"", nullable = false, length = 100)

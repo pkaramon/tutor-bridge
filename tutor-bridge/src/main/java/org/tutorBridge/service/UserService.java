@@ -1,28 +1,29 @@
 package org.tutorBridge.service;
 
+import org.tutorBridge.config.DB;
 import org.tutorBridge.dao.UserDao;
 import org.tutorBridge.entities.User;
 import org.tutorBridge.security.PasswordManager;
 import org.tutorBridge.validation.ValidationException;
 
-import javax.validation.ConstraintViolation;
-import java.util.ArrayList;
+import jakarta.persistence.EntityManager;
 import java.util.List;
 
 public abstract class UserService<T extends User> extends AbstractService{
     private final UserDao userDao = new UserDao();
 
     public void registerUser(T user) {
-        boolean userWithSameEmailExists = userDao.findByEmail(user.getEmail()).isPresent();
-        if (userWithSameEmailExists) {
-            throw new ValidationException(List.of("User with the same email already exists"));
-        }
-
-        user.setPassword(PasswordManager.hashPassword(user.getPassword()));
-        saveUser(user);
+        DB.inTransaction(em -> {
+            boolean userWithSameEmailExists = userDao.findByEmail(user.getEmail()).isPresent();
+            if (userWithSameEmailExists) {
+                throw new ValidationException(List.of("User with the same email already exists"));
+            }
+            user.setPassword(PasswordManager.hashPassword(user.getPassword()));
+            saveUser(user, em);
+        });
     }
 
 
-    protected abstract void saveUser(T user);
+    protected abstract void saveUser(T user, EntityManager em);
 }
 
