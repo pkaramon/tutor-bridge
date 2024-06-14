@@ -1,15 +1,26 @@
 package org.tutorBridge.main;
 
-import org.tutorBridge.config.DB;
-import org.tutorBridge.dao.SpecializationDao;
-import org.tutorBridge.dao.StudentDao;
-import org.tutorBridge.dao.TutorDao;
-import org.tutorBridge.services.AbsenceService;
-import org.tutorBridge.services.StudentService;
-import org.tutorBridge.services.TutorService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import org.tutorBridge.entities.User;
 
 public class Main {
     public static void main(String[] args) {
+        // create entity manager factory
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("default");
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+        System.out.println(entityManager.find(User.class, 1L));
+
+        entityManager.close();
+
+
+
+
+
+
 //        StudentService studentService = new StudentService();
 //        TutorService tutorService = new TutorService();
 //        SpecializationDao specializationDao = new SpecializationDao();

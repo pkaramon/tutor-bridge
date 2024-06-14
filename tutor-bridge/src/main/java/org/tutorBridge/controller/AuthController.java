@@ -13,8 +13,6 @@ import org.tutorBridge.dto.AuthResponseDTO;
 import org.tutorBridge.entities.User;
 import org.tutorBridge.security.JwtTokenUtil;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {

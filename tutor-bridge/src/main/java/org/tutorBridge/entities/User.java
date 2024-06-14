@@ -1,5 +1,6 @@
 package org.tutorBridge.entities;
 
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -8,8 +9,6 @@ import org.tutorBridge.entities.enums.UserType;
 import org.tutorBridge.validation.ValidPhoneNumber;
 
 import java.time.LocalDate;
-
-import jakarta.persistence.*;
 
 @Entity
 @Table(name = "\"USER\"")
@@ -100,6 +99,10 @@ public abstract class User {
 
     public String getEmail() {
         return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPassword() {

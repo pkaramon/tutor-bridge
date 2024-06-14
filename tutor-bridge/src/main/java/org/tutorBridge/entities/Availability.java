@@ -1,9 +1,10 @@
 package org.tutorBridge.entities;
 
 
-import org.tutorBridge.validation.ValidAvailabilityRange;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import org.tutorBridge.validation.ValidAvailabilityRange;
+
 import java.time.LocalDateTime;
 
 @Entity

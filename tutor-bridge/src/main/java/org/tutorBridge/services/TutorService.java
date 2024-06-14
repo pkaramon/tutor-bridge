@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tutorBridge.dao.AvailabilityDao;
 import org.tutorBridge.dao.TutorDao;
+import org.tutorBridge.dao.UserDao;
 import org.tutorBridge.entities.Availability;
 import org.tutorBridge.entities.Tutor;
 import org.tutorBridge.validation.ValidationException;
@@ -20,7 +21,8 @@ public class TutorService extends UserService<Tutor> {
     private final TutorDao tutorDao;
     private final AvailabilityDao availabilityDao;
 
-    public TutorService(TutorDao tutorDao, AvailabilityDao availabilityDao) {
+    public TutorService(TutorDao tutorDao, AvailabilityDao availabilityDao, UserDao userDao) {
+        super(userDao);
         this.tutorDao = tutorDao;
         this.availabilityDao = availabilityDao;
     }

@@ -1,9 +1,8 @@
 package org.tutorBridge.validation;
 
-import org.tutorBridge.entities.Availability;
-
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.tutorBridge.entities.Availability;
 
 public class AvailabilityRangeValidator implements ConstraintValidator<ValidAvailabilityRange, Availability> {
     @Override

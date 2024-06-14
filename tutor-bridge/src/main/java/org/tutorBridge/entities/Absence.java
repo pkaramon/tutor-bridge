@@ -1,9 +1,9 @@
 package org.tutorBridge.entities;
 
 
+import jakarta.persistence.*;
 import org.tutorBridge.validation.ValidAbsenceRange;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity

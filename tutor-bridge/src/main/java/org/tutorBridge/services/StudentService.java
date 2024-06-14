@@ -1,20 +1,17 @@
 package org.tutorBridge.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.tutorBridge.dao.ReservationDao;
 import org.tutorBridge.dao.StudentDao;
-import org.tutorBridge.dao.TutorDao;
+import org.tutorBridge.dao.UserDao;
 import org.tutorBridge.entities.Student;
-
-import jakarta.persistence.EntityManager;
 
 
 @Service
 public class StudentService extends UserService<Student> {
-    private final StudentDao studentDao ;
+    private final StudentDao studentDao;
 
-    public StudentService(StudentDao studentDao) {
+    public StudentService(StudentDao studentDao, UserDao userDao) {
+        super(userDao);
         this.studentDao = studentDao;
     }
 

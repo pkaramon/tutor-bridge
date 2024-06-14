@@ -1,0 +1,38 @@
+package org.tutorBridge.dao;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.tutorBridge.entities.User;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@SpringBootTest
+class UserDaoTest {
+
+    @Autowired
+    private UserDao userDao;
+
+    @PersistenceContext
+    private EntityManager em;
+
+    @Test
+    void testEntityManagerInjection() {
+        assertNotNull(em);  // Ensure EntityManager is not null
+        List<User> users = em.createQuery("from User", User.class).getResultList();
+        assertNotNull(users);  // Ensure query returns a result
+    }
+
+    @Test
+    void findByEmail() {
+        Optional<User> user = userDao.findByEmail("bob@gmail.com");
+        assertTrue(user.isPresent());
+    }
+}

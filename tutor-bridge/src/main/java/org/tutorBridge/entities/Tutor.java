@@ -42,7 +42,7 @@ public class Tutor extends User {
                  String password,
                  String bio,
                  LocalDate birthDate) {
-        super(firstName, lastName, phone, email, password, UserType.STUDENT, birthDate);
+        super(firstName, lastName, phone, email, password, UserType.TUTOR, birthDate);
         this.bio = bio;
     }
 

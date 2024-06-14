@@ -1,9 +1,9 @@
 package org.tutorBridge.entities;
 
+import jakarta.persistence.*;
 import org.tutorBridge.entities.enums.StudentLevel;
 import org.tutorBridge.entities.enums.UserType;
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;

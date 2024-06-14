@@ -1,14 +1,14 @@
 package org.tutorBridge.dao;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
 import org.tutorBridge.entities.Absence;
 import org.tutorBridge.entities.Availability;
 import org.tutorBridge.entities.Reservation;
 import org.tutorBridge.entities.Tutor;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;

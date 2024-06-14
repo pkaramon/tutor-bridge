@@ -1,9 +1,8 @@
 package org.tutorBridge.validation;
 
-import org.tutorBridge.entities.Absence;
-
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.tutorBridge.entities.Absence;
 
 public class AbsenceRangeValidator implements ConstraintValidator<ValidAbsenceRange, Absence> {
 

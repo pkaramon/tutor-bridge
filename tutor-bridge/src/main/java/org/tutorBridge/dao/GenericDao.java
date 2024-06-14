@@ -5,7 +5,6 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-import org.tutorBridge.config.DB;
 import org.tutorBridge.validation.ValidationException;
 
 import java.io.Serializable;
@@ -25,11 +24,6 @@ public class GenericDao<T, ID extends Serializable> {
         this.entityClass = entityClass;
         var factory = Validation.buildDefaultValidatorFactory();
         this.validator = factory.getValidator();
-    }
-
-    public void save(T entity, EntityManager entityManager) {
-        validateEntity(entity);
-        entityManager.persist(entity);
     }
 
     public void save(T entity) {
