@@ -1,30 +1,32 @@
-package org.tutorBridge;
+package org.tutorBridge.main;
 
 import org.tutorBridge.config.DB;
 import org.tutorBridge.dao.SpecializationDao;
 import org.tutorBridge.dao.StudentDao;
 import org.tutorBridge.dao.TutorDao;
-import org.tutorBridge.service.AbsenceService;
-import org.tutorBridge.service.StudentService;
-import org.tutorBridge.service.TutorService;
-
-import java.time.LocalDateTime;
+import org.tutorBridge.services.AbsenceService;
+import org.tutorBridge.services.StudentService;
+import org.tutorBridge.services.TutorService;
 
 public class Main {
     public static void main(String[] args) {
-        StudentService studentService = new StudentService();
-        TutorService tutorService = new TutorService();
-        SpecializationDao specializationDao = new SpecializationDao();
-        TutorDao tutorDao = new TutorDao();
-        StudentDao studentDao = new StudentDao();
-        AbsenceService absenceService = new AbsenceService();
+//        StudentService studentService = new StudentService();
+//        TutorService tutorService = new TutorService();
+//        SpecializationDao specializationDao = new SpecializationDao();
+//        TutorDao tutorDao = new TutorDao();
+//        StudentDao studentDao = new StudentDao();
+//        AbsenceService absenceService = new AbsenceService();
 
-        absenceService.addAbsence(
-                tutorDao.findById(3L).orElseThrow(),
-                LocalDateTime.of(2024, 7, 1, 9, 0, 0),
-                LocalDateTime.of(2024, 7, 31, 10, 0, 0)
 
-        );
+//        absenceService.addAbsence(
+//                tutorDao.findById(3L).orElseThrow(),
+//                LocalDateTime.of(2024, 7, 1, 9, 0, 0),
+//                LocalDateTime.of(2024, 7, 31, 10, 0, 0)
+//
+//        );
+
+//        DB.inTransaction(em -> { System.out.println(tutorDao.findById(3L, em));
+//        });
 
 //        try (var session = DB.getSessionFactory().openSession()) {
 //            TypedQuery<Availability> query = session.createQuery(
@@ -71,6 +73,6 @@ public class Main {
 //        tutorService.addWeeklyAvailability(tutor, weekelyTimeRanges, 4);
         System.out.println("OK");
 
-        DB.close();
+//        DB.close();
     }
 }

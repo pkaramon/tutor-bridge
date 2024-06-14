@@ -1,4 +1,4 @@
-package org.tutorBridge.service;
+package org.tutorBridge.services;
 
 import java.time.LocalTime;
 

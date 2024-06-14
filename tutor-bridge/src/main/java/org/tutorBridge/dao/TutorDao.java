@@ -1,5 +1,7 @@
 package org.tutorBridge.dao;
 
+import jakarta.persistence.PersistenceContext;
+import org.springframework.stereotype.Repository;
 import org.tutorBridge.entities.Absence;
 import org.tutorBridge.entities.Availability;
 import org.tutorBridge.entities.Reservation;
@@ -11,12 +13,17 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Repository
 public class TutorDao extends GenericDao<Tutor, Long> {
+
+    @PersistenceContext
+    private EntityManager em;
+
     public TutorDao() {
         super(Tutor.class);
     }
 
-    public List<Availability> fetchAvailabilities(Tutor tutor, LocalDate start, LocalDate end, EntityManager em) {
+    public List<Availability> fetchAvailabilities(Tutor tutor, LocalDate start, LocalDate end) {
         TypedQuery<Availability> query = em.createQuery(
                 "FROM Availability a WHERE a.tutor = :tutor AND a.startDateTime < :end AND a.endDateTime > :start",
                 Availability.class
@@ -27,7 +34,7 @@ public class TutorDao extends GenericDao<Tutor, Long> {
         return query.getResultList();
     }
 
-    public boolean hasTutorConflictingAvailability(Tutor tutor, LocalDateTime start, LocalDateTime end, EntityManager em) {
+    public boolean hasTutorConflictingAvailability(Tutor tutor, LocalDateTime start, LocalDateTime end) {
         TypedQuery<Availability> query = em.createQuery(
                 "FROM Availability a WHERE a.tutor = :tutor AND a.startDateTime < :end AND a.endDateTime > :start",
                 Availability.class);
@@ -38,7 +45,7 @@ public class TutorDao extends GenericDao<Tutor, Long> {
         return !results.isEmpty();
     }
 
-    public boolean isTutorAvailable(Tutor tutor, LocalDateTime start, LocalDateTime end, EntityManager em) {
+    public boolean isTutorAvailable(Tutor tutor, LocalDateTime start, LocalDateTime end) {
         TypedQuery<Availability> query = em.createQuery(
                 "FROM Availability a WHERE a.tutor = :tutor AND a.startDateTime <= :start AND a.endDateTime >= :end",
                 Availability.class
@@ -50,7 +57,7 @@ public class TutorDao extends GenericDao<Tutor, Long> {
         return !results.isEmpty();
     }
 
-    public boolean hasAbsenceDuring(Tutor tutor, LocalDateTime start, LocalDateTime end, EntityManager em) {
+    public boolean hasAbsenceDuring(Tutor tutor, LocalDateTime start, LocalDateTime end) {
         TypedQuery<Absence> query = em.createQuery(
                 "FROM Absence a WHERE a.tutor = :tutor AND a.startDate <= :end AND a.endDate >= :start",
                 Absence.class
@@ -62,7 +69,7 @@ public class TutorDao extends GenericDao<Tutor, Long> {
         return !results.isEmpty();
     }
 
-    public boolean hasConflictingReservation(Tutor tutor, LocalDateTime start, LocalDateTime end, EntityManager em) {
+    public boolean hasConflictingReservation(Tutor tutor, LocalDateTime start, LocalDateTime end) {
         TypedQuery<Reservation> query = em.createQuery(
                 "FROM Reservation r WHERE r.tutor = :tutor AND r.startDateTime < :end AND r.endDateTime > :start",
                 Reservation.class
@@ -75,7 +82,7 @@ public class TutorDao extends GenericDao<Tutor, Long> {
     }
 
 
-    public boolean hasConflictingAbsence(Tutor tutor, LocalDateTime start, LocalDateTime end, EntityManager em) {
+    public boolean hasConflictingAbsence(Tutor tutor, LocalDateTime start, LocalDateTime end) {
         TypedQuery<Absence> query = em.createQuery(
                 "FROM Absence a WHERE a.tutor = :tutor AND a.startDate < :end AND a.endDate > :start",
                 Absence.class
@@ -87,7 +94,7 @@ public class TutorDao extends GenericDao<Tutor, Long> {
         return !results.isEmpty();
     }
 
-    public List<Reservation> findReservationsAffectedByAbsence(Tutor tutor, LocalDateTime start, LocalDateTime end, EntityManager em) {
+    public List<Reservation> findReservationsAffectedByAbsence(Tutor tutor, LocalDateTime start, LocalDateTime end) {
         TypedQuery<Reservation> query = em.createQuery(
                 "FROM Reservation r WHERE r.tutor = :tutor AND r.startDateTime < :end AND r.endDateTime > :start",
                 Reservation.class

@@ -1,22 +1,25 @@
 package org.tutorBridge.dao;
 
-import org.tutorBridge.config.DB;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import org.springframework.stereotype.Repository;
 import org.tutorBridge.entities.User;
 
-import jakarta.persistence.TypedQuery;
 import java.util.Optional;
 
+@Repository
 public class UserDao extends GenericDao<User, Long> {
+    @PersistenceContext
+    private EntityManager em;
+
     public UserDao() {
         super(User.class);
     }
 
     public Optional<User> findByEmail(String email) {
-
-        return DB.withEntityManger(em -> {
-            TypedQuery<User> query = em.createQuery("from User where email = :email", User.class);
-            query.setParameter("email", email);
-            return query.getResultList().stream().findFirst();
-        });
+        TypedQuery<User> query = em.createQuery("from User where email = :email", User.class);
+        query.setParameter("email", email);
+        return query.getResultList().stream().findFirst();
     }
 }

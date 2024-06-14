@@ -1,5 +1,7 @@
-package org.tutorBridge.service;
+package org.tutorBridge.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.tutorBridge.dao.ReservationDao;
 import org.tutorBridge.dao.StudentDao;
 import org.tutorBridge.dao.TutorDao;
@@ -8,10 +10,13 @@ import org.tutorBridge.entities.Student;
 import jakarta.persistence.EntityManager;
 
 
+@Service
 public class StudentService extends UserService<Student> {
-    private final StudentDao studentDao = new StudentDao();
-    private final TutorDao tutorDao = new TutorDao();
-    private final ReservationDao reservationDao = new ReservationDao();
+    private final StudentDao studentDao ;
+
+    public StudentService(StudentDao studentDao) {
+        this.studentDao = studentDao;
+    }
 
 
     public void registerStudent(Student student) {
@@ -22,9 +27,9 @@ public class StudentService extends UserService<Student> {
         studentDao.update(student);
     }
 
-    @Override
-    protected void saveUser(Student student, EntityManager em) {
-        studentDao.save(student, em);
-    }
 
+    @Override
+    protected void saveUser(Student user) {
+        studentDao.save(user);
+    }
 }

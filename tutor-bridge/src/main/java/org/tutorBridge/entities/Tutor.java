@@ -1,6 +1,7 @@
 package org.tutorBridge.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Nationalized;
 import org.tutorBridge.entities.enums.UserType;
 
 import java.time.LocalDate;
@@ -19,8 +20,8 @@ public class Tutor extends User {
             inverseJoinColumns = @JoinColumn(name = "SPECIALIZATIONID")
     )
     private final Set<Specialization> specializations = new HashSet<>();
-    @Lob
-    @Column(name = "BIO", nullable = false)
+    @Column(name = "BIO", columnDefinition = "nclob", length=1000000, nullable = false)
+    @Nationalized
     private String bio;
     @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Absence> absences = new HashSet<>();

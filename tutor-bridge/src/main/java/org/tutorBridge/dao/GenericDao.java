@@ -1,6 +1,7 @@
 package org.tutorBridge.dao;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -17,6 +18,9 @@ public class GenericDao<T, ID extends Serializable> {
     private final Validator validator;
     private final Class<T> entityClass;
 
+    @PersistenceContext
+    protected EntityManager em;
+
     public GenericDao(Class<T> entityClass) {
         this.entityClass = entityClass;
         var factory = Validation.buildDefaultValidatorFactory();
@@ -30,33 +34,25 @@ public class GenericDao<T, ID extends Serializable> {
 
     public void save(T entity) {
         validateEntity(entity);
-        DB.inTransaction(em -> em.persist(entity));
+        em.persist(entity);
     }
 
-    public Optional<T> findById(ID id, EntityManager em) {
+    public Optional<T> findById(ID id) {
         return Optional.ofNullable(em.find(entityClass, id));
     }
 
-    public List<T> findAll(EntityManager em) {
+    public List<T> findAll() {
         return em.createQuery("from " + entityClass.getName(), entityClass).getResultList();
-    }
-
-    public void update(T entity, EntityManager entityManager) {
-        validateEntity(entity);
-        entityManager.merge(entity);
     }
 
     public void update(T entity) {
         validateEntity(entity);
-        DB.inTransaction(em -> em.merge(entity));
+        em.merge(entity);
     }
 
-    public void delete(T entity, EntityManager entityManager) {
-        entityManager.remove(entity);
-    }
 
     public void delete(T entity) {
-        DB.inTransaction(em -> em.remove(entity));
+        em.remove(entity);
     }
 
     protected void validateEntity(Object entity) {

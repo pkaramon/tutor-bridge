@@ -5,5 +5,5 @@ public enum StudentLevel {
     MIDDLE_SCHOOL,
     HIGH_SCHOOL,
     COLLEGE,
-    UNIVERSITY;
+    UNIVERSITY
 }
