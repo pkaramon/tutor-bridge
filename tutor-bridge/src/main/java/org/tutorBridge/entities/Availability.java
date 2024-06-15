@@ -12,8 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "AVAILABILITY")
 public class Availability {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "availability_seq")
-    @SequenceGenerator(name = "availability_seq", sequenceName = "BD_415271.AVAILABILITY_ID_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "AVAILABILITYID", nullable = false)
     private Long availabilityId;
 

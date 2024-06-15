@@ -8,11 +8,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @ValidAbsenceRange
-@Table(name = "ABSENCE")
+@Table(name = "Absence")
 public class Absence {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "absence_seq")
-    @SequenceGenerator(name = "absence_seq", sequenceName = "BD_415271.ABSENCE_ID_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ABSENCEID", nullable = false)
     private Long absenceId;
 

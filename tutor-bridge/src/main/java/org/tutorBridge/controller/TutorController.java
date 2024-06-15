@@ -3,52 +3,49 @@ package org.tutorBridge.controller;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.tutorBridge.dao.TutorDao;
-import org.tutorBridge.dto.TutorDTO;
+import org.tutorBridge.dto.TutorRegisterDTO;
+import org.tutorBridge.entities.Specialization;
 import org.tutorBridge.entities.Tutor;
 import org.tutorBridge.entities.User;
-import org.tutorBridge.mapper.TutorMapper;
 import org.tutorBridge.services.TutorService;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/tutors")
 public class TutorController {
     private final TutorService tutorService;
-    private final TutorMapper tutorMapper;
+    @PersistenceContext
+    private EntityManager em;
 
-    @Autowired
-    private TutorDao tutorDao;
-
-    public TutorController(TutorService tutorService, TutorMapper tutorMapper) {
+    public TutorController(TutorService tutorService,  TutorDao tutorDao) {
         this.tutorService = tutorService;
-        this.tutorMapper = tutorMapper;
     }
 
     @PostMapping("/register")
-    public TutorDTO registerTutor(@Valid @RequestBody TutorDTO tutor) {
-        Tutor tutorEntity = tutorMapper.toEntity(tutor);
-
-        System.out.println("##########");
-        System.out.println(tutorEntity.getFirstName());
-        System.out.println(tutorEntity.getLastName());
-        System.out.println(tutorEntity.getEmail());
-        System.out.println(tutor.getEmail());
-        System.out.println(tutorEntity.getBirthDate());
-        System.out.println(tutorEntity.getPhone());
-        System.out.println("##########");
-
-        tutorService.registerTutor(tutorEntity);
-        return tutorMapper.toDto(tutorEntity);
+    public Map<String, String> registerTutor(@Valid @RequestBody TutorRegisterDTO tutorData) {
+        Tutor tutor = new Tutor(
+                tutorData.getFirstName(),
+                tutorData.getLastName(),
+                tutorData.getPhone(),
+                tutorData.getEmail(),
+                tutorData.getPassword(),
+                tutorData.getBio(),
+                tutorData.getBirthDate()
+        );
+        tutor.setSpecializations(
+                tutorData.getSpecializations().stream()
+                        .map(Specialization::new)
+                        .collect(Collectors.toSet())
+        );
+        tutorService.registerTutor(tutor);
+        return Collections.singletonMap("message", "Tutor registered successfully");
     }
-
-    @PersistenceContext
-    private EntityManager em;
 
     @GetMapping("/hello")
     public String hello() {

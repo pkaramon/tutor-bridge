@@ -9,14 +9,16 @@ import java.util.Objects;
  * DTO for {@link org.tutorBridge.entities.Specialization}
  */
 public class SpecializationDto implements Serializable {
-    private final Long specializationId;
+    private Long specializationId;
     @NotBlank(message = "Specialization name is required")
-    private final String name;
+    private String name;
 
     public SpecializationDto(Long specializationId, String name) {
         this.specializationId = specializationId;
         this.name = name;
     }
+
+    public SpecializationDto() {}
 
     public Long getSpecializationId() {
         return specializationId;

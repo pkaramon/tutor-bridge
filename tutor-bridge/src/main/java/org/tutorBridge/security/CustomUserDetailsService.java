@@ -17,12 +17,12 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        User user = userDao.findById(Long.parseLong(userId)).orElseThrow(() ->
-                new UsernameNotFoundException("User not found with id: " + userId));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userDao.findByEmail(email).orElseThrow(() ->
+                new UsernameNotFoundException("User not found with email: " + email));
 
         return org.springframework.security.core.userdetails.User
-                .withUsername(user.getUserId().toString())
+                .withUsername(user.getEmail())
                 .password(user.getPassword())
                 .authorities(user.getType().toString())
                 .accountExpired(false)
@@ -32,3 +32,4 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .build();
     }
 }
+

@@ -18,8 +18,8 @@ public class SpecializationDao extends GenericDao<Specialization, Long> {
     }
 
     public Optional<Specialization> findByName(String name) {
-        return em.createQuery("SELECT s FROM Specialization s WHERE s.name = :name", Specialization.class)
-                .setParameter("name", name)
+        return em.createQuery("SELECT s FROM Specialization s WHERE lower(s.name) = lower(:name)", Specialization.class)
+                .setParameter("name", name.toLowerCase())
                 .getResultList()
                 .stream()
                 .findFirst();

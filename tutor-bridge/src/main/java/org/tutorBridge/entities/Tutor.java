@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "TUTOR")
-@PrimaryKeyJoinColumn(name = "TUTORID", referencedColumnName = "USERID")
+@PrimaryKeyJoinColumn(name = "TUTORID")
 public class Tutor extends User {
 
     @ManyToMany
@@ -20,7 +20,7 @@ public class Tutor extends User {
             inverseJoinColumns = @JoinColumn(name = "SPECIALIZATIONID")
     )
     private final Set<Specialization> specializations = new HashSet<>();
-    @Column(name = "BIO", columnDefinition = "nclob", length=1000000, nullable = false)
+    @Column(name = "BIO", columnDefinition = "nclob", length = 1000000, nullable = false)
     @Nationalized
     private String bio;
     @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -56,6 +56,11 @@ public class Tutor extends User {
 
     public Set<Specialization> getSpecializations() {
         return specializations;
+    }
+
+    public void setSpecializations(Set<Specialization> specializations) {
+        this.specializations.clear();
+        this.specializations.addAll(specializations);
     }
 
     public void addSpecialization(Specialization specialization) {

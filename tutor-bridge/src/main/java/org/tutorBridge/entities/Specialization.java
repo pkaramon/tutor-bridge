@@ -10,19 +10,15 @@ import java.util.Set;
 @Table(name = "SPECIALIZATION")
 public class Specialization {
 
+    @ManyToMany(mappedBy = "specializations")
+    private final Set<Tutor> tutors = new HashSet<>();
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "specialization_seq")
-    @SequenceGenerator(name = "specialization_seq", sequenceName = "BD_415271.SPECIALIZATION_ID_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "SPECIALIZATIONID", nullable = false)
     private Long specializationId;
-
     @NotBlank(message = "Specialization name is required")
     @Column(name = "NAME", nullable = false, length = 200)
     private String name;
-
-
-    @ManyToMany(mappedBy = "specializations")
-    private final Set<Tutor> tutors = new HashSet<>();
 
 
     public Specialization() {
@@ -38,6 +34,10 @@ public class Specialization {
         return specializationId;
     }
 
+    public void setSpecializationId(Long specializationId) {
+        this.specializationId = specializationId;
+    }
+
     public String getName() {
         return name;
     }
@@ -49,4 +49,5 @@ public class Specialization {
     public Set<Tutor> getTutors() {
         return tutors;
     }
+
 }

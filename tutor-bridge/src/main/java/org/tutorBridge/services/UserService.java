@@ -1,21 +1,24 @@
 package org.tutorBridge.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.tutorBridge.dao.UserDao;
 import org.tutorBridge.entities.User;
-import org.tutorBridge.security.PasswordManager;
 import org.tutorBridge.validation.ValidationException;
 
 import java.util.List;
 
+
 @Service
 public abstract class UserService<T extends User> extends AbstractService {
     protected final UserDao userDao;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    protected UserService(UserDao userDao) {
+    protected UserService(UserDao userDao, PasswordEncoder passwordEncoder) {
         this.userDao = userDao;
+        this.passwordEncoder = passwordEncoder;
     }
 
     protected void registerUser(T user) {
@@ -23,12 +26,10 @@ public abstract class UserService<T extends User> extends AbstractService {
         if (userWithSameEmailExists) {
             throw new ValidationException(List.of("User with the same email already exists"));
         }
-        user.setPassword(PasswordManager.hashPassword(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userDao.save(user);
         saveUser(user);
     }
 
-
     protected abstract void saveUser(T user);
 }
-

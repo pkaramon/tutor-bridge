@@ -1,12 +1,15 @@
 package org.tutorBridge.services;
 
 import jakarta.persistence.EntityManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tutorBridge.dao.AvailabilityDao;
+import org.tutorBridge.dao.SpecializationDao;
 import org.tutorBridge.dao.TutorDao;
 import org.tutorBridge.dao.UserDao;
 import org.tutorBridge.entities.Availability;
+import org.tutorBridge.entities.Specialization;
 import org.tutorBridge.entities.Tutor;
 import org.tutorBridge.validation.ValidationException;
 
@@ -15,22 +18,35 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class TutorService extends UserService<Tutor> {
     private final TutorDao tutorDao;
     private final AvailabilityDao availabilityDao;
+    private final SpecializationDao specializationDao;
 
-    public TutorService(TutorDao tutorDao, AvailabilityDao availabilityDao, UserDao userDao) {
-        super(userDao);
+    public TutorService(TutorDao tutorDao, AvailabilityDao availabilityDao, UserDao userDao, PasswordEncoder pe, SpecializationDao specializationDao) {
+        super(userDao, pe);
         this.tutorDao = tutorDao;
         this.availabilityDao = availabilityDao;
+        this.specializationDao = specializationDao;
     }
+
 
     @Transactional
     public void registerTutor(Tutor tutor) {
+        for (Specialization specialization : tutor.getSpecializations()) {
+            Optional<Specialization> existingSpecialization = specializationDao.findByName(specialization.getName());
+            if (existingSpecialization.isPresent()) {
+                specialization.setSpecializationId(existingSpecialization.get().getSpecializationId());
+            } else {
+                specializationDao.save(specialization);
+            }
+        }
         registerUser(tutor);
     }
+
 
     public void updateTutor(Tutor tutor) {
         tutorDao.update(tutor);

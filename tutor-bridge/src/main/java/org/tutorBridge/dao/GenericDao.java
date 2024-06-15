@@ -44,6 +44,14 @@ public class GenericDao<T, ID extends Serializable> {
         em.merge(entity);
     }
 
+    public void saveOrUpdate(T entity) {
+        if (em.contains(entity)) {
+            em.merge(entity);
+        } else {
+            em.persist(entity);
+        }
+    }
+
 
     public void delete(T entity) {
         em.remove(entity);

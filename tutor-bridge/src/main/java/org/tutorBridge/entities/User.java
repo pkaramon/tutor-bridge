@@ -11,13 +11,12 @@ import org.tutorBridge.validation.ValidPhoneNumber;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "\"USER\"")
+@Table(name = "\"User\"")
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
-    @SequenceGenerator(name = "user_seq", sequenceName = "BD_415271.USER_ID_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USERID", nullable = false)
     private Long userId;
 

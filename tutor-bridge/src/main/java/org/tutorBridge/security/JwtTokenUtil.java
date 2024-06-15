@@ -9,13 +9,14 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.function.Function;
 
+
 @Component
 public class JwtTokenUtil {
 
     @Value("${jwt.secret}")
     private String secretKey;
 
-    public String extractUserId(String token) {
+    public String extractUserEmail(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -29,28 +30,31 @@ public class JwtTokenUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+        return Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     private Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    public String generateToken(String userId) {
-        return createToken(userId);
+    public String generateToken(String email) {
+        return createToken(email);
     }
 
-    private String createToken(String userId) {
+    private String createToken(String email) {
         return Jwts.builder()
-                .setSubject(userId)
+                .setSubject(email)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
 
-    public Boolean validateToken(String token, String userId) {
-        final String tokenUserId = extractUserId(token);
-        return (tokenUserId.equals(userId) && !isTokenExpired(token));
+    public Boolean validateToken(String token, String email) {
+        final String tokenEmail = extractUserEmail(token);
+        return (tokenEmail.equals(email) && !isTokenExpired(token));
     }
 }
