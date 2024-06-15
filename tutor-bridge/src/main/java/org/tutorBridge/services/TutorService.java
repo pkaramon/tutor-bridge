@@ -19,6 +19,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class TutorService extends UserService<Tutor> {
@@ -45,6 +47,35 @@ public class TutorService extends UserService<Tutor> {
             }
         }
         registerUser(tutor);
+    }
+
+
+    public Set<Specialization> getSpecializations(String email) {
+        return tutorDao.findByEmail(email)
+                .map(Tutor::getSpecializations)
+                .orElseThrow(() -> new ValidationException("Tutor not found"));
+    }
+
+
+    @Transactional
+    public void updateTutorSpecializations(String email, Set<String> specializationNames) {
+        Tutor tutor = tutorDao.findByEmail(email)
+                .orElseThrow(() -> new ValidationException("Tutor not found"));
+
+        Set<Specialization> specializations = getOrCreateSpecializations(specializationNames);
+        tutor.setSpecializations(specializations);
+        tutorDao.update(tutor);
+    }
+
+    private Set<Specialization> getOrCreateSpecializations(Set<String> specializationNames) {
+        return specializationNames.stream()
+                .map(name -> specializationDao.findByName(name)
+                        .orElseGet(() -> {
+                            Specialization newSpec = new Specialization(name);
+                            specializationDao.save(newSpec);
+                            return newSpec;
+                        }))
+                .collect(Collectors.toSet());
     }
 
 

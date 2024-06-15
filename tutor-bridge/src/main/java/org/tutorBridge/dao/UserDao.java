@@ -17,6 +17,8 @@ public class UserDao extends GenericDao<User, Long> {
         super(User.class);
     }
 
+
+
     public Optional<User> findByEmail(String email) {
         TypedQuery<User> query = em.createQuery("from User where email = :email", User.class);
         query.setParameter("email", email);

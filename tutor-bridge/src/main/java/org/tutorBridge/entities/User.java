@@ -11,7 +11,9 @@ import org.tutorBridge.validation.ValidPhoneNumber;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "\"User\"")
+@Table(name = "\"User\"", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "EMAIL")
+})
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class User {
 

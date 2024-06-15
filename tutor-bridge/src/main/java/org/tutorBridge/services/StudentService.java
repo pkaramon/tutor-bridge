@@ -2,6 +2,7 @@ package org.tutorBridge.services;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.tutorBridge.dao.StudentDao;
 import org.tutorBridge.dao.UserDao;
 import org.tutorBridge.entities.Student;
@@ -17,10 +18,12 @@ public class StudentService extends UserService<Student> {
     }
 
 
+    @Transactional
     public void registerStudent(Student student) {
         registerUser(student);
     }
 
+    @Transactional
     public void updateStudent(Student student) {
         studentDao.update(student);
     }

@@ -4,14 +4,12 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
-import org.tutorBridge.entities.Absence;
-import org.tutorBridge.entities.Availability;
-import org.tutorBridge.entities.Reservation;
-import org.tutorBridge.entities.Tutor;
+import org.tutorBridge.entities.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class TutorDao extends GenericDao<Tutor, Long> {
@@ -21,6 +19,13 @@ public class TutorDao extends GenericDao<Tutor, Long> {
 
     public TutorDao() {
         super(Tutor.class);
+    }
+
+
+    public Optional<Tutor> findByEmail(String email) {
+        TypedQuery<Tutor> query = em.createQuery("from Tutor where email = :email", Tutor.class);
+        query.setParameter("email", email);
+        return query.getResultList().stream().findFirst();
     }
 
     public List<Availability> fetchAvailabilities(Tutor tutor, LocalDate start, LocalDate end) {
