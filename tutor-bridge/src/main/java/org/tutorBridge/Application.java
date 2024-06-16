@@ -10,21 +10,14 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.annotation.Transactional;
-import org.tutorBridge.dao.SpecializationDao;
-import org.tutorBridge.dao.UserDao;
-import org.tutorBridge.entities.Tutor;
-import org.tutorBridge.entities.User;
-
-import java.time.LocalDate;
-import java.util.List;
+import org.tutorBridge.repositories.SpecializationRepo;
 
 
 @SpringBootApplication(exclude = {
         org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class}
 )
 @EntityScan(basePackages = "org.tutorBridge.entities")
-@EnableJpaRepositories("org.tutorBridge.dao")
+@EnableJpaRepositories("org.tutorBridge.repositories")
 @EnableTransactionManagement
 public class Application {
     public static void main(String[] args) {
@@ -35,7 +28,7 @@ public class Application {
     private EntityManager em;
 
     @Bean
-    public CommandLineRunner demo(SpecializationDao specializationDao) {
+    public CommandLineRunner demo(SpecializationRepo specializationDao) {
         return (args) -> {
 
 

@@ -1,4 +1,4 @@
-package org.tutorBridge.dao;
+package org.tutorBridge.repositories;
 
 import org.springframework.stereotype.Repository;
 import org.tutorBridge.entities.Reservation;
@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public class ReservationDao extends GenericDao<Reservation, Long> {
-    public ReservationDao() {
+public class ReservationRepo extends GenericRepo<Reservation, Long> {
+    public ReservationRepo() {
         super(Reservation.class);
     }
 

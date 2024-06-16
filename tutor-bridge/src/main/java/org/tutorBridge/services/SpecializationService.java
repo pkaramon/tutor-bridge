@@ -2,11 +2,11 @@ package org.tutorBridge.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.tutorBridge.dao.SpecializationDao;
-import org.tutorBridge.dao.TutorDao;
-import org.tutorBridge.dao.UserDao;
+import org.tutorBridge.repositories.SpecializationRepo;
+import org.tutorBridge.repositories.TutorRepo;
 import org.tutorBridge.entities.Specialization;
 import org.tutorBridge.entities.Tutor;
+import org.tutorBridge.repositories.UserRepo;
 import org.tutorBridge.validation.ValidationException;
 
 import java.util.Set;
@@ -15,37 +15,37 @@ import java.util.stream.Collectors;
 
 @Service
 public class SpecializationService extends AbstractService {
-    private final SpecializationDao specializationDao;
-    private final TutorDao tutorDao;
-    private final UserDao userDao;
+    private final SpecializationRepo specializationRepo;
+    private final TutorRepo tutorRepo;
+    private final UserRepo userRepo;
 
-    public SpecializationService(SpecializationDao specializationDao, TutorDao tutorDao, UserDao userDao) {
-        this.specializationDao = specializationDao;
-        this.tutorDao = tutorDao;
-        this.userDao = userDao;
+    public SpecializationService(SpecializationRepo specializationRepo, TutorRepo tutorRepo, UserRepo userRepo) {
+        this.specializationRepo = specializationRepo;
+        this.tutorRepo = tutorRepo;
+        this.userRepo = userRepo;
     }
 
     public void addSpecialization(String name) {
         Specialization specialization = new Specialization(name);
-        specializationDao.save(specialization);
+        specializationRepo.save(specialization);
     }
 
     @Transactional
     public void updateTutorSpecializations(String email, Set<String> specializationNames) {
-        Tutor tutor = (Tutor) userDao.findByEmail(email)
+        Tutor tutor = (Tutor) userRepo.findByEmail(email)
                 .orElseThrow(() -> new ValidationException("Tutor not found"));
 
         Set<Specialization> specializations = getOrCreateSpecializations(specializationNames);
         tutor.setSpecializations(specializations);
-        tutorDao.update(tutor);
+        tutorRepo.update(tutor);
     }
 
     private Set<Specialization> getOrCreateSpecializations(Set<String> specializationNames) {
         return specializationNames.stream()
-                .map(name -> specializationDao.findByName(name)
+                .map(name -> specializationRepo.findByName(name)
                         .orElseGet(() -> {
                             Specialization newSpec = new Specialization(name);
-                            specializationDao.save(newSpec);
+                            specializationRepo.save(newSpec);
                             return newSpec;
                         }))
                 .collect(Collectors.toSet());

@@ -1,5 +1,7 @@
-package org.tutorBridge.dao;
+package org.tutorBridge.repositories;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -7,9 +9,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.tutorBridge.entities.User;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.tutorBridge.security.JwtTokenUtil;
 
 import java.util.List;
@@ -22,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class UserDaoTest {
 
     @Autowired
-    private UserDao userDao;
+    private UserRepo userDao;
 
     @PersistenceContext
     private EntityManager em;

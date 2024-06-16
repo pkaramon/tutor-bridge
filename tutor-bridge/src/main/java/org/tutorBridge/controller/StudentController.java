@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.tutorBridge.dto.NewReservationDTO;
 import org.tutorBridge.dto.NewReservationsDTO;
 import org.tutorBridge.dto.StudentRegisterDTO;
 import org.tutorBridge.dto.StudentUpdateDTO;
@@ -14,7 +13,6 @@ import org.tutorBridge.entities.Student;
 import org.tutorBridge.services.StudentService;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 @RestController

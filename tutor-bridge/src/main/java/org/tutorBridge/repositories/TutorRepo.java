@@ -1,4 +1,4 @@
-package org.tutorBridge.dao;
+package org.tutorBridge.repositories;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -15,12 +15,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class TutorDao extends GenericDao<Tutor, Long> {
+public class TutorRepo extends GenericRepo<Tutor, Long> {
 
     @PersistenceContext
     private EntityManager em;
 
-    public TutorDao() {
+    public TutorRepo() {
         super(Tutor.class);
     }
 

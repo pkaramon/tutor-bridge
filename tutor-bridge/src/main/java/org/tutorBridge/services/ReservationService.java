@@ -2,8 +2,8 @@ package org.tutorBridge.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.tutorBridge.dao.ReservationDao;
-import org.tutorBridge.dao.TutorDao;
+import org.tutorBridge.repositories.ReservationRepo;
+import org.tutorBridge.repositories.TutorRepo;
 import org.tutorBridge.dto.StatusChangeDTO;
 import org.tutorBridge.entities.Reservation;
 import org.tutorBridge.entities.Tutor;
@@ -16,12 +16,12 @@ import java.util.stream.IntStream;
 
 @Service
 public class ReservationService extends AbstractService {
-    private final ReservationDao reservationDao ;
-    private final TutorDao tutorDao ;
+    private final ReservationRepo reservationRepo;
+    private final TutorRepo tutorRepo;
 
-    public ReservationService(ReservationDao reservationDao, TutorDao tutorDao) {
-        this.reservationDao = reservationDao;
-        this.tutorDao = tutorDao;
+    public ReservationService(ReservationRepo reservationRepo, TutorRepo tutorRepo) {
+        this.reservationRepo = reservationRepo;
+        this.tutorRepo = tutorRepo;
     }
 
     @Transactional
@@ -30,24 +30,24 @@ public class ReservationService extends AbstractService {
         LocalDateTime start = reservation.getStartDateTime();
         LocalDateTime end = reservation.getEndDateTime();
 
-        if (!tutorDao.isTutorAvailable(tutor, start, end)) {
+        if (!tutorRepo.isTutorAvailable(tutor, start, end)) {
             throw new ValidationException("Tutor is not available at the requested time.");
         }
-        if (tutorDao.hasAbsenceDuring(tutor, start, end)) {
+        if (tutorRepo.hasAbsenceDuring(tutor, start, end)) {
             throw new ValidationException("Tutor has an absence record for the requested time.");
         }
-        if (tutorDao.hasConflictingReservation(tutor, start, end)) {
+        if (tutorRepo.hasConflictingReservation(tutor, start, end)) {
             throw new ValidationException("Tutor has another reservation at the requested time.");
         }
-        reservationDao.save(reservation);
+        reservationRepo.save(reservation);
     }
 
 
     @Transactional
     public void changeReservationStatus(String email, List<StatusChangeDTO> statusChanges) {
-        Tutor tutor = tutorDao.findByEmail(email).orElseThrow(() -> new ValidationException("Tutor not found"));
+        Tutor tutor = tutorRepo.findByEmail(email).orElseThrow(() -> new ValidationException("Tutor not found"));
         List<Long> reservationIds = statusChanges.stream().map(StatusChangeDTO::getReservationId).toList();
-        List<Reservation> reservations = reservationDao.findReservationsByTutorAndIds(tutor, reservationIds);
+        List<Reservation> reservations = reservationRepo.findReservationsByTutorAndIds(tutor, reservationIds);
         if (reservations.size() != reservationIds.size()) {
             throw new ValidationException("Some reservations do not belong to the tutor");
         }
@@ -62,7 +62,7 @@ public class ReservationService extends AbstractService {
         });
 
         for (StatusChangeDTO statusChange : statusChanges) {
-            reservationDao.changeStatus(statusChange.getReservationId(), statusChange.getStatus());
+            reservationRepo.changeStatus(statusChange.getReservationId(), statusChange.getStatus());
         }
     }
 

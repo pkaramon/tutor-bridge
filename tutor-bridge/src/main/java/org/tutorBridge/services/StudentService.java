@@ -3,7 +3,7 @@ package org.tutorBridge.services;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.tutorBridge.dao.*;
+import org.tutorBridge.repositories.*;
 import org.tutorBridge.dto.NewReservationDTO;
 import org.tutorBridge.dto.StudentUpdateDTO;
 import org.tutorBridge.entities.*;
@@ -14,19 +14,17 @@ import java.util.List;
 
 @Service
 public class StudentService extends UserService<Student> {
-    private final StudentDao studentDao;
-    private final AvailabilityDao availabilityDao;
-    private final SpecializationDao specializationDao;
-    private final TutorDao tutorDao;
-    private final ReservationDao reservationDao;
+    private final StudentRepo studentRepo;
+    private final AvailabilityRepo availabilityRepo;
+    private final TutorRepo tutorRepo;
+    private final ReservationRepo reservationRepo;
 
-    public StudentService(StudentDao studentDao, UserDao userDao, PasswordEncoder passwordEncoder, AvailabilityDao availabilityDao, SpecializationDao specializationDao, TutorDao tutorDao, ReservationDao reservationDao) {
+    public StudentService(StudentRepo studentRepo, UserRepo userDao, PasswordEncoder passwordEncoder, AvailabilityRepo availabilityRepo, SpecializationRepo specializationDao, TutorRepo tutorRepo, ReservationRepo reservationRepo) {
         super(userDao, passwordEncoder);
-        this.studentDao = studentDao;
-        this.availabilityDao = availabilityDao;
-        this.specializationDao = specializationDao;
-        this.tutorDao = tutorDao;
-        this.reservationDao = reservationDao;
+        this.studentRepo = studentRepo;
+        this.availabilityRepo = availabilityRepo;
+        this.tutorRepo = tutorRepo;
+        this.reservationRepo = reservationRepo;
     }
 
 
@@ -35,15 +33,10 @@ public class StudentService extends UserService<Student> {
         registerUser(student);
     }
 
-    @Transactional
-    public void updateStudent(Student student) {
-        studentDao.update(student);
-    }
-
 
     @Override
     protected void saveUser(Student user) {
-        studentDao.save(user);
+        studentRepo.save(user);
     }
 
     @Transactional
@@ -57,7 +50,7 @@ public class StudentService extends UserService<Student> {
         if (studentData.getBirthDate() != null) student.setBirthDate(studentData.getBirthDate());
         if (studentData.getLevel() != null) student.setLevel(studentData.getLevel());
 
-        studentDao.update(student);
+        studentRepo.update(student);
     }
 
 
@@ -67,11 +60,11 @@ public class StudentService extends UserService<Student> {
         for (NewReservationDTO reservationData : reservationsData) {
             makeReservation(student, reservationData);
         }
-        studentDao.update(student);
+        studentRepo.update(student);
     }
 
     private void makeReservation(Student student, NewReservationDTO data) {
-        Availability slot = availabilityDao.findWithTutorAndSpecializations(data.getAvailabilityId())
+        Availability slot = availabilityRepo.findWithTutorAndSpecializations(data.getAvailabilityId())
                 .orElseThrow(() -> new ValidationException("Availability not found"));
         Tutor tutor = slot.getTutor();
         Specialization specialization = tutor.getSpecializations().stream()
@@ -89,15 +82,15 @@ public class StudentService extends UserService<Student> {
         student.addReservation(reservation);
         tutor.addReservation(reservation);
 
-        studentDao.save(student);
-        tutorDao.update(tutor);
-        reservationDao.save(reservation);
+        studentRepo.save(student);
+        tutorRepo.update(tutor);
+        reservationRepo.save(reservation);
 
-        availabilityDao.deleteAvailabilitiesFor(tutor, slot.getStartDateTime(), slot.getEndDateTime());
+        availabilityRepo.deleteAvailabilitiesFor(tutor, slot.getStartDateTime(), slot.getEndDateTime());
     }
 
     private Student getStudent(String email) {
-        Student student = studentDao.findByEmail(email)
+        Student student = studentRepo.findByEmail(email)
                 .orElseThrow(() -> new ValidationException("Student not found"));
         return student;
     }

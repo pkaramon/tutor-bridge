@@ -1,4 +1,4 @@
-package org.tutorBridge.dao;
+package org.tutorBridge.repositories;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class GenericDao<T, ID extends Serializable> {
+public class GenericRepo<T, ID extends Serializable> {
 
     private final Validator validator;
     private final Class<T> entityClass;
@@ -20,7 +20,7 @@ public class GenericDao<T, ID extends Serializable> {
     @PersistenceContext
     protected EntityManager em;
 
-    public GenericDao(Class<T> entityClass) {
+    public GenericRepo(Class<T> entityClass) {
         this.entityClass = entityClass;
         var factory = Validation.buildDefaultValidatorFactory();
         this.validator = factory.getValidator();

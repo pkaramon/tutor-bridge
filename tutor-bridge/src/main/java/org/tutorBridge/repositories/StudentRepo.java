@@ -1,4 +1,4 @@
-package org.tutorBridge.dao;
+package org.tutorBridge.repositories;
 
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
@@ -8,8 +8,8 @@ import java.util.Optional;
 
 
 @Repository
-public class StudentDao extends GenericDao<Student, Long> {
-    public StudentDao() {
+public class StudentRepo extends GenericRepo<Student, Long> {
+    public StudentRepo() {
         super(Student.class);
     }
 

@@ -23,9 +23,9 @@ public class Main {
 
 //        StudentService studentService = new StudentService();
 //        TutorService tutorService = new TutorService();
-//        SpecializationDao specializationDao = new SpecializationDao();
-//        TutorDao tutorDao = new TutorDao();
-//        StudentDao studentDao = new StudentDao();
+//        SpecializationRepo specializationDao = new SpecializationRepo();
+//        TutorRepo tutorDao = new TutorRepo();
+//        StudentRepo studentDao = new StudentRepo();
 //        AbsenceService absenceService = new AbsenceService();
 
 

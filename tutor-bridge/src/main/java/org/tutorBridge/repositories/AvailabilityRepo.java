@@ -1,4 +1,4 @@
-package org.tutorBridge.dao;
+package org.tutorBridge.repositories;
 
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class AvailabilityDao extends GenericDao<Availability, Long> {
-    public AvailabilityDao() {
+public class AvailabilityRepo extends GenericRepo<Availability, Long> {
+    public AvailabilityRepo() {
         super(Availability.class);
     }
 

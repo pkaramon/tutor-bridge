@@ -4,10 +4,9 @@ import jakarta.persistence.EntityManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.tutorBridge.dao.AvailabilityDao;
-import org.tutorBridge.dao.SpecializationDao;
-import org.tutorBridge.dao.TutorDao;
-import org.tutorBridge.dao.UserDao;
+import org.tutorBridge.repositories.*;
+import org.tutorBridge.repositories.AvailabilityRepo;
+import org.tutorBridge.repositories.UserRepo;
 import org.tutorBridge.dto.AvailabilityDTO;
 import org.tutorBridge.dto.TimeRangeDTO;
 import org.tutorBridge.dto.TutorUpdateDTO;
@@ -28,26 +27,26 @@ import java.util.stream.Collectors;
 
 @Service
 public class TutorService extends UserService<Tutor> {
-    private final TutorDao tutorDao;
-    private final AvailabilityDao availabilityDao;
-    private final SpecializationDao specializationDao;
+    private final TutorRepo tutorRepo;
+    private final AvailabilityRepo availabilityRepo;
+    private final SpecializationRepo specializationRepo;
 
-    public TutorService(TutorDao tutorDao, AvailabilityDao availabilityDao, UserDao userDao, PasswordEncoder pe, SpecializationDao specializationDao) {
+    public TutorService(TutorRepo tutorRepo, AvailabilityRepo availabilityRepo, UserRepo userDao, PasswordEncoder pe, SpecializationRepo specializationRepo) {
         super(userDao, pe);
-        this.tutorDao = tutorDao;
-        this.availabilityDao = availabilityDao;
-        this.specializationDao = specializationDao;
+        this.tutorRepo = tutorRepo;
+        this.availabilityRepo = availabilityRepo;
+        this.specializationRepo = specializationRepo;
     }
 
 
     @Transactional
     public void registerTutor(Tutor tutor) {
         for (Specialization specialization : tutor.getSpecializations()) {
-            Optional<Specialization> existingSpecialization = specializationDao.findByName(specialization.getName());
+            Optional<Specialization> existingSpecialization = specializationRepo.findByName(specialization.getName());
             if (existingSpecialization.isPresent()) {
                 specialization.setSpecializationId(existingSpecialization.get().getSpecializationId());
             } else {
-                specializationDao.save(specialization);
+                specializationRepo.save(specialization);
             }
         }
         registerUser(tutor);
@@ -55,7 +54,7 @@ public class TutorService extends UserService<Tutor> {
 
 
     public Set<Specialization> getSpecializations(String email) {
-        return tutorDao.findByEmail(email)
+        return tutorRepo.findByEmail(email)
                 .map(Tutor::getSpecializations)
                 .orElseThrow(() -> new ValidationException("Tutor not found"));
     }
@@ -63,13 +62,13 @@ public class TutorService extends UserService<Tutor> {
 
     @Transactional
     public List<AvailabilityDTO> addWeeklyAvailability(String email, WeeklySlotsDTO availData) {
-        Tutor tutor = tutorDao.findByEmail(email)
+        Tutor tutor = tutorRepo.findByEmail(email)
                 .orElseThrow(() -> new ValidationException("Tutor not found"));
 
 
         addWeeklyAvailability(tutor, availData);
 
-        return availabilityDao.fetchAvailabilities(tutor, availData.getStartDate(), availData.getEndDate())
+        return availabilityRepo.fetchAvailabilities(tutor, availData.getStartDate(), availData.getEndDate())
                 .stream()
                 .map(a -> new AvailabilityDTO(a.getAvailabilityId(), a.getStartDateTime(), a.getEndDateTime()))
                 .collect(Collectors.toList());
@@ -80,7 +79,7 @@ public class TutorService extends UserService<Tutor> {
         LocalDate endDate = weeklySlotsDTO.getEndDate();
         Map<DayOfWeek, List<TimeRangeDTO>> weeklyTimeRanges = weeklySlotsDTO.getWeeklyTimeRanges();
 
-        availabilityDao.deleteAvailabilitiesFor(
+        availabilityRepo.deleteAvailabilitiesFor(
                 tutor,
                 startDate.atStartOfDay(),
                 endDate.plusDays(1).atStartOfDay());
@@ -100,7 +99,7 @@ public class TutorService extends UserService<Tutor> {
             LocalDateTime startDateTime = LocalDateTime.of(date, timeRange.getStart());
             LocalDateTime endDateTime = LocalDateTime.of(date, timeRange.getEnd());
             Availability availability = new Availability(tutor, startDateTime, endDateTime);
-            availabilityDao.save(availability);
+            availabilityRepo.save(availability);
         }
     }
 
@@ -122,23 +121,23 @@ public class TutorService extends UserService<Tutor> {
 
         checkForAvailabilityConflicts(tutor, start, end);
         var availability = new Availability(tutor, start, end);
-        availabilityDao.save(availability);
+        availabilityRepo.save(availability);
     }
 
     private void checkForAvailabilityConflicts(Tutor tutor, LocalDateTime start, LocalDateTime end) {
-        if (tutorDao.hasTutorConflictingAvailability(tutor, start, end)) {
+        if (tutorRepo.hasTutorConflictingAvailability(tutor, start, end)) {
             throw new ValidationException("Tutor already has an availability that conflicts with this one");
         }
     }
 
     @Override
     protected void saveUser(Tutor user) {
-        tutorDao.save(user);
+        tutorRepo.save(user);
     }
 
     @Transactional
     public void updateTutorInfo(String email, TutorUpdateDTO tutorData) {
-        Tutor tutor = tutorDao.findByEmail(email)
+        Tutor tutor = tutorRepo.findByEmail(email)
                 .orElseThrow(() -> new ValidationException("Tutor not found"));
 
         if (tutorData.getFirstName() != null) tutor.setFirstName(tutorData.getFirstName());
@@ -152,15 +151,15 @@ public class TutorService extends UserService<Tutor> {
             tutor.setSpecializations(specializations);
         }
 
-        tutorDao.update(tutor);
+        tutorRepo.update(tutor);
     }
 
     private Set<Specialization> getOrCreateSpecializations(Set<String> specializationNames) {
         return specializationNames.stream()
-                .map(name -> specializationDao.findByName(name)
+                .map(name -> specializationRepo.findByName(name)
                         .orElseGet(() -> {
                             Specialization newSpec = new Specialization(name);
-                            specializationDao.save(newSpec);
+                            specializationRepo.save(newSpec);
                             return newSpec;
                         }))
                 .collect(Collectors.toSet());

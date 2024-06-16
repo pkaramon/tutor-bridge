@@ -4,21 +4,21 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.tutorBridge.dao.UserDao;
+import org.tutorBridge.repositories.UserRepo;
 import org.tutorBridge.entities.User;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserDao userDao;
+    private final UserRepo userRepo;
 
-    public CustomUserDetailsService(UserDao userDao) {
-        this.userDao = userDao;
+    public CustomUserDetailsService(UserRepo userRepo) {
+        this.userRepo = userRepo;
     }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userDao.findByEmail(email).orElseThrow(() ->
+        User user = userRepo.findByEmail(email).orElseThrow(() ->
                 new UsernameNotFoundException("User not found with email: " + email));
 
         return org.springframework.security.core.userdetails.User
