@@ -13,6 +13,7 @@ import org.tutorBridge.repositories.TutorRepo;
 import org.tutorBridge.validation.ValidationException;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,9 +32,7 @@ public class AbsenceService extends AbstractService {
     }
 
     @Transactional
-    public List<AbsenceDTO> addAbsence(String email, LocalDateTime start, LocalDateTime end) {
-        Tutor tutor = tutorRepo.findByEmail(email).orElseThrow(() -> new ValidationException("Tutor not found"));
-
+    public List<AbsenceDTO> addAbsence(Tutor tutor, LocalDateTime start, LocalDateTime end) {
         if (tutorRepo.hasConflictingAbsence(tutor, start, end)) {
             throw new ValidationException("Tutor already has an absence that conflicts with the new one.");
         }
@@ -43,23 +42,17 @@ public class AbsenceService extends AbstractService {
         availabilityRepo.deleteAvailabilitiesFor(tutor, start, end);
         reservationRepo.cancelReservationsFor(tutor, start, end);
 
-        return absenceRepo
-                .fetchAbsences(tutor)
-                .stream()
-                .map(a -> new AbsenceDTO(a.getAbsenceId(), a.getStartDate(), a.getEndDate()))
-                .collect(Collectors.toList());
+        return fromAbsencesToDTOS(absenceRepo.fetchAbsences(tutor));
     }
 
     @Transactional(readOnly = true)
-    public List<AbsenceDTO> getAbsences(String email, TimeFrameDTO timeFrame) {
-        Tutor tutor = tutorRepo.findByEmail(email).orElseThrow(() -> new ValidationException("Tutor not found"));
+    public List<AbsenceDTO> getAbsences(Tutor tutor, TimeFrameDTO timeFrame) {
         TimeFrameDTO.fillInEmptyFields(timeFrame);
-        return getAbsencesDTOS(tutor, timeFrame.getStart(), timeFrame.getEnd());
+        return fromAbsencesToDTOS(absenceRepo.fetchAbsences(tutor, timeFrame.getStart(), timeFrame.getEnd()));
     }
 
     @Transactional
-    public List<AbsenceDTO> deleteAbsence(String email, Long absenceId) {
-        Tutor tutor = tutorRepo.findByEmail(email).orElseThrow(() -> new ValidationException("Tutor not found"));
+    public List<AbsenceDTO> deleteAbsence(Tutor tutor, Long absenceId) {
         Absence absence = absenceRepo.findById(absenceId)
                 .orElseThrow(() -> new ValidationException("Absence not found"));
         if (!absence.getTutor().equals(tutor)) {
@@ -68,23 +61,14 @@ public class AbsenceService extends AbstractService {
 
         absenceRepo.delete(absence);
 
-        return getAbsencesDTOS(tutor);
+        return fromAbsencesToDTOS(absenceRepo.fetchAbsences(tutor));
     }
 
 
-    private List<AbsenceDTO> getAbsencesDTOS(Tutor tutor) {
-        return absenceRepo.fetchAbsences(tutor,
-                        TimeFrameDTO.getDefaultStart(),
-                        TimeFrameDTO.getDefaultEnd())
-                .stream()
+    private List<AbsenceDTO> fromAbsencesToDTOS(Collection<Absence> absences) {
+        return absences.stream()
                 .map(a -> new AbsenceDTO(a.getAbsenceId(), a.getStartDate(), a.getEndDate()))
                 .collect(Collectors.toList());
     }
 
-    private List<AbsenceDTO> getAbsencesDTOS(Tutor tutor, LocalDateTime start, LocalDateTime end) {
-        return absenceRepo.fetchAbsences(tutor, start, end)
-                .stream()
-                .map(a -> new AbsenceDTO(a.getAbsenceId(), a.getStartDate(), a.getEndDate()))
-                .collect(Collectors.toList());
-    }
 }

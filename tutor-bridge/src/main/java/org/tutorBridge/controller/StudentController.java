@@ -41,29 +41,37 @@ public class StudentController {
     public StudentUpdateDTO updateStudent(@Valid @RequestBody StudentUpdateDTO studentData,
                                           Authentication authentication) {
         String email = authentication.getName();
-        return studentService.updateStudentInfo(email, studentData);
+        return studentService.updateStudentInfo(studentService.fromEmail(email), studentData);
     }
 
     @GetMapping("/account")
     public StudentUpdateDTO getStudentInfo(Authentication authentication) {
         String email = authentication.getName();
-        return studentService.getStudentInfo(email);
+        return studentService.getStudentInfo(studentService.fromEmail(email));
     }
 
     @PostMapping("/reservation")
     public Map<String, String> makeReservations(@Valid @RequestBody NewReservationsDTO reservations,
                                                 Authentication authentication) {
         String email = authentication.getName();
-        studentService.makeReservations(email, reservations.getReservations());
+        studentService.makeReservations(studentService.fromEmail(email), reservations.getReservations());
         return Collections.singletonMap("message", "Reservations made successfully");
     }
 
-    @GetMapping("/plan")
+    @PostMapping("/reservation/{id}/cancel")
+    public PlanResponseDTO cancelReservation(@PathVariable(name = "id") Long id, Authentication authentication) {
+        String email = authentication.getName();
+        Student student = studentService.fromEmail(email);
+        studentService.cancelReservation(student, id);
+        return planService.getPlanForStudent(student, TimeFrameDTO.fillInEmptyFields(null));
+    }
+
+    @GetMapping("/reservation")
     public PlanResponseDTO getPlan(
             @RequestBody(required = false) TimeFrameDTO timeframe,
             Authentication authentication) {
         String email = authentication.getName();
-        return planService.getPlanForStudent(email, timeframe);
+        return planService.getPlanForStudent(studentService.fromEmail(email), timeframe);
     }
 
 

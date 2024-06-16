@@ -3,6 +3,8 @@ package org.tutorBridge.dto;
 import java.time.LocalDateTime;
 
 public record PlanEntryDTO(
+        Long reservationId,
+        Long tutorId,
         LocalDateTime startDateTime,
         LocalDateTime endDateTime,
         String studentFirstName,

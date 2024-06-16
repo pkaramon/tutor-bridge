@@ -8,6 +8,7 @@ import org.tutorBridge.entities.enums.ReservationStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class ReservationRepo extends GenericRepo<Reservation, Long> {
@@ -22,13 +23,6 @@ public class ReservationRepo extends GenericRepo<Reservation, Long> {
                 .setParameter("tutor", tutor)
                 .setParameter("start", start)
                 .setParameter("end", end)
-                .executeUpdate();
-    }
-
-    public void updateReservationStatus(Long reservationId, ReservationStatus status) {
-        em.createQuery("UPDATE Reservation r SET r.status = :status WHERE r.reservationId = :reservationId")
-                .setParameter("status", status)
-                .setParameter("reservationId", reservationId)
                 .executeUpdate();
     }
 
@@ -48,13 +42,11 @@ public class ReservationRepo extends GenericRepo<Reservation, Long> {
 
     public List<Reservation> findValidReservationsFor(Tutor tutor, LocalDateTime start, LocalDateTime end) {
         return em.createQuery("FROM Reservation r " +
-                                "WHERE r.tutor = :tutor AND r.startDateTime < :end AND r.endDateTime > :start " +
-                                "AND r.status != :status",
+                                "WHERE r.tutor = :tutor AND r.startDateTime < :end AND r.endDateTime > :start",
                         Reservation.class)
                 .setParameter("tutor", tutor)
                 .setParameter("start", start)
                 .setParameter("end", end)
-                .setParameter("status", ReservationStatus.CANCELLED)
                 .getResultList();
     }
 
@@ -66,5 +58,13 @@ public class ReservationRepo extends GenericRepo<Reservation, Long> {
                 .setParameter("start", start)
                 .setParameter("end", end)
                 .getResultList();
+    }
+
+    public Optional<Reservation> findReservationForStudent(Student student, Long id) {
+        return em.createQuery("FROM Reservation r WHERE r.student = :student AND r.reservationId = :id", Reservation.class)
+                .setParameter("student", student)
+                .setParameter("id", id)
+                .getResultStream()
+                .findFirst();
     }
 }

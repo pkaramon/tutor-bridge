@@ -2,12 +2,12 @@ package org.tutorBridge.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.tutorBridge.repositories.ReservationRepo;
-import org.tutorBridge.repositories.TutorRepo;
 import org.tutorBridge.dto.StatusChangeDTO;
 import org.tutorBridge.entities.Reservation;
 import org.tutorBridge.entities.Tutor;
 import org.tutorBridge.entities.enums.ReservationStatus;
+import org.tutorBridge.repositories.ReservationRepo;
+import org.tutorBridge.repositories.TutorRepo;
 import org.tutorBridge.validation.ValidationException;
 
 import java.time.LocalDateTime;
@@ -44,8 +44,7 @@ public class ReservationService extends AbstractService {
 
 
     @Transactional
-    public void changeReservationStatus(String email, List<StatusChangeDTO> statusChanges) {
-        Tutor tutor = tutorRepo.findByEmail(email).orElseThrow(() -> new ValidationException("Tutor not found"));
+    public void changeReservationStatus(Tutor tutor, List<StatusChangeDTO> statusChanges) {
         List<Long> reservationIds = statusChanges.stream().map(StatusChangeDTO::getReservationId).toList();
         List<Reservation> reservations = reservationRepo.findReservationsByTutorAndIds(tutor, reservationIds);
         if (reservations.size() != reservationIds.size()) {

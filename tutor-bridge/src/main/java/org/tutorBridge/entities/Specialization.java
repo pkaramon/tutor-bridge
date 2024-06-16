@@ -7,7 +7,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "SPECIALIZATION")
+@Table(name = "SPECIALIZATION",
+        uniqueConstraints = @UniqueConstraint(columnNames = "NAME")
+)
 public class Specialization {
 
     @ManyToMany(mappedBy = "specializations")
@@ -22,7 +24,6 @@ public class Specialization {
 
 
     public Specialization() {
-
     }
 
     public Specialization(String name) {

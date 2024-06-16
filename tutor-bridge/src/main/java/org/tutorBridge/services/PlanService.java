@@ -12,7 +12,6 @@ import org.tutorBridge.entities.Tutor;
 import org.tutorBridge.repositories.ReservationRepo;
 import org.tutorBridge.repositories.StudentRepo;
 import org.tutorBridge.repositories.TutorRepo;
-import org.tutorBridge.validation.ValidationException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,6 +34,8 @@ public class PlanService {
             Tutor tutor = reservation.getTutor();
             Specialization specialization = reservation.getSpecialization();
             return new PlanEntryDTO(
+                    reservation.getReservationId(),
+                    tutor.getUserId(),
                     reservation.getStartDateTime(),
                     reservation.getEndDateTime(),
                     student.getFirstName(),
@@ -55,22 +56,18 @@ public class PlanService {
 
 
     @Transactional(readOnly = true)
-    public PlanResponseDTO getPlanForTutor(String email, TimeFrameDTO timeframe) {
+    public PlanResponseDTO getPlanForTutor(Tutor tutor, TimeFrameDTO timeframe) {
         timeframe = TimeFrameDTO.fillInEmptyFields(timeframe);
-        var tutor = tutorRepo.findByEmail(email).orElseThrow(() -> new ValidationException("Tutor not found"));
         List<Reservation> reservations = reservationRepo
                 .findValidReservationsFor(tutor, timeframe.getStart(), timeframe.getEnd());
-
         return fromReservationsToPlanResponseDTO(reservations);
     }
 
     @Transactional(readOnly = true)
-    public PlanResponseDTO getPlanForStudent(String email, TimeFrameDTO timeframe) {
+    public PlanResponseDTO getPlanForStudent(Student student, TimeFrameDTO timeframe) {
         timeframe = TimeFrameDTO.fillInEmptyFields(timeframe);
-        var student = studentRepo.findByEmail(email).orElseThrow(() -> new ValidationException("Student not found"));
         List<Reservation> reservations = reservationRepo
                 .findReservationsForStudent(student, timeframe.getStart(), timeframe.getEnd());
-
         return fromReservationsToPlanResponseDTO(reservations);
     }
 }

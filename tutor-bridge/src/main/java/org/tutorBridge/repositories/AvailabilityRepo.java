@@ -4,6 +4,7 @@ import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
 import org.tutorBridge.entities.Availability;
 import org.tutorBridge.entities.Tutor;
+import org.tutorBridge.entities.enums.ReservationStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -49,4 +50,29 @@ public class AvailabilityRepo extends GenericRepo<Availability, Long> {
     }
 
 
+    public void insertIfNoConflicts(Availability availability) {
+        boolean overlappingAbsenceExist = em.createQuery(
+                        "SELECT COUNT(a) > 0 FROM Absence a " +
+                                "WHERE a.tutor = :tutor AND a.startDate < :end AND a.endDate > :start",
+                        Boolean.class)
+                .setParameter("tutor", availability.getTutor())
+                .setParameter("start", availability.getStartDateTime())
+                .setParameter("end", availability.getEndDateTime())
+                .getSingleResult();
+        if (overlappingAbsenceExist) return;
+
+        boolean overlappingReservationExists = em.createQuery(
+                        "SELECT COUNT(r) > 0 FROM Reservation r " +
+                                "WHERE r.tutor = :tutor AND r.startDateTime < :end AND r.endDateTime > :start " +
+                                "AND r.status != :status",
+                        Boolean.class)
+                .setParameter("tutor", availability.getTutor())
+                .setParameter("start", availability.getStartDateTime())
+                .setParameter("end", availability.getEndDateTime())
+                .setParameter("status", ReservationStatus.CANCELLED)
+                .getSingleResult();
+        if (overlappingReservationExists) return;
+
+        em.persist(availability);
+    }
 }

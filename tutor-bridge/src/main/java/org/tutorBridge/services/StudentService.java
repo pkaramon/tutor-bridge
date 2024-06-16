@@ -6,9 +6,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.tutorBridge.dto.NewReservationDTO;
 import org.tutorBridge.dto.StudentUpdateDTO;
 import org.tutorBridge.entities.*;
+import org.tutorBridge.entities.enums.ReservationStatus;
 import org.tutorBridge.repositories.*;
 import org.tutorBridge.validation.ValidationException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -19,7 +21,7 @@ public class StudentService extends UserService<Student> {
     private final TutorRepo tutorRepo;
     private final ReservationRepo reservationRepo;
 
-    public StudentService(StudentRepo studentRepo, UserRepo userDao, PasswordEncoder passwordEncoder, AvailabilityRepo availabilityRepo, SpecializationRepo specializationDao, TutorRepo tutorRepo, ReservationRepo reservationRepo) {
+    public StudentService(StudentRepo studentRepo, UserRepo userDao, PasswordEncoder passwordEncoder, AvailabilityRepo availabilityRepo, TutorRepo tutorRepo, ReservationRepo reservationRepo) {
         super(userDao, passwordEncoder);
         this.studentRepo = studentRepo;
         this.availabilityRepo = availabilityRepo;
@@ -48,9 +50,7 @@ public class StudentService extends UserService<Student> {
     }
 
     @Transactional
-    public StudentUpdateDTO updateStudentInfo(String email, StudentUpdateDTO studentData) {
-        Student student = getStudent(email);
-
+    public StudentUpdateDTO updateStudentInfo(Student student, StudentUpdateDTO studentData) {
         if (studentData.getFirstName() != null) student.setFirstName(studentData.getFirstName());
         if (studentData.getLastName() != null) student.setLastName(studentData.getLastName());
         if (studentData.getPhone() != null) student.setPhone(studentData.getPhone());
@@ -63,8 +63,7 @@ public class StudentService extends UserService<Student> {
     }
 
     @Transactional
-    public void makeReservations(String email, List<NewReservationDTO> reservationsData) {
-        Student student = getStudent(email);
+    public void makeReservations(Student student, List<NewReservationDTO> reservationsData) {
         for (NewReservationDTO reservationData : reservationsData) {
             makeReservation(student, reservationData);
         }
@@ -97,14 +96,38 @@ public class StudentService extends UserService<Student> {
         availabilityRepo.deleteAvailabilitiesFor(tutor, slot.getStartDateTime(), slot.getEndDateTime());
     }
 
-    private Student getStudent(String email) {
-        Student student = studentRepo.findByEmail(email)
-                .orElseThrow(() -> new ValidationException("Student not found"));
-        return student;
+
+    @Transactional(readOnly = true)
+    public StudentUpdateDTO getStudentInfo(Student student) {
+        return fromStudentToDTO(student);
     }
 
-    public StudentUpdateDTO getStudentInfo(String email) {
-        Student student = getStudent(email);
-        return fromStudentToDTO(student);
+    @Transactional
+    public void cancelReservation(Student student, Long reservationId) {
+
+        Reservation reservation = reservationRepo.findReservationForStudent(student, reservationId)
+                .orElseThrow(() -> new ValidationException("Reservation not found"));
+
+        if (student != reservation.getStudent())
+            throw new ValidationException("Reservation does not belong to the student");
+
+        if (reservation.getStartDateTime().isBefore(LocalDateTime.now()))
+            throw new ValidationException("Cannot cancel reservation in the past");
+
+        reservation.setStatus(ReservationStatus.CANCELLED);
+        reservationRepo.update(reservation);
+
+        Availability availability = new Availability(
+                reservation.getTutor(),
+                reservation.getStartDateTime(),
+                reservation.getEndDateTime()
+        );
+        availabilityRepo.insertIfNoConflicts(availability);
+    }
+
+    public Student fromEmail(String email) {
+        return studentRepo
+                .findByEmail(email)
+                .orElseThrow(() -> new ValidationException("Student not found"));
     }
 }

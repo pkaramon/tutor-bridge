@@ -36,9 +36,36 @@ public class TutorService extends UserService<Tutor> {
         this.specializationRepo = specializationRepo;
     }
 
+    private static TutorUpdateDTO fromTutorToDTO(Tutor tutor) {
+        return new TutorUpdateDTO(
+                tutor.getFirstName(),
+                tutor.getLastName(),
+                tutor.getPhone(),
+                tutor.getBirthDate(),
+                tutor.getSpecializations()
+                        .stream()
+                        .map(Specialization::getName)
+                        .collect(Collectors.toSet()),
+                tutor.getBio());
+    }
 
     @Transactional
-    public void registerTutor(Tutor tutor) {
+    public void registerTutor(TutorRegisterDTO tutorData) {
+        Tutor tutor = new Tutor(
+                tutorData.getFirstName(),
+                tutorData.getLastName(),
+                tutorData.getPhone(),
+                tutorData.getEmail(),
+                tutorData.getPassword(),
+                tutorData.getBio(),
+                tutorData.getBirthDate()
+        );
+        tutor.setSpecializations(
+                tutorData.getSpecializations().stream()
+                        .map(Specialization::new)
+                        .collect(Collectors.toSet())
+        );
+
         for (Specialization specialization : tutor.getSpecializations()) {
             Optional<Specialization> existingSpecialization = specializationRepo.findByName(specialization.getName());
             if (existingSpecialization.isPresent()) {
@@ -50,35 +77,17 @@ public class TutorService extends UserService<Tutor> {
         registerUser(tutor);
     }
 
-
-    public Set<Specialization> getSpecializations(String email) {
-        return tutorRepo.findByEmail(email)
-                .map(Tutor::getSpecializations)
-                .orElseThrow(() -> new ValidationException("Tutor not found"));
+    public TutorSpecializationDTO getSpecializations(Tutor tutor) {
+        return new TutorSpecializationDTO(tutor.getSpecializations().stream()
+                .map(Specialization::getName)
+                .collect(Collectors.toSet()));
     }
-
 
     @Transactional
-    public List<AvailabilityDTO> addWeeklyAvailability(String email, WeeklySlotsDTO availData) {
-        Tutor tutor = tutorRepo.findByEmail(email)
-                .orElseThrow(() -> new ValidationException("Tutor not found"));
-
-
-        addWeeklyAvailability(tutor, availData);
-
-        return availabilityRepo.fetchAvailabilities(
-                        tutor,
-                        availData.getStartDate().atStartOfDay(),
-                        availData.getEndDate().plusDays(1).atStartOfDay())
-                .stream()
-                .map(a -> new AvailabilityDTO(a.getAvailabilityId(), a.getStartDateTime(), a.getEndDateTime()))
-                .collect(Collectors.toList());
-    }
-
-    private void addWeeklyAvailability(Tutor tutor, WeeklySlotsDTO weeklySlotsDTO) {
-        LocalDate startDate = weeklySlotsDTO.getStartDate();
-        LocalDate endDate = weeklySlotsDTO.getEndDate();
-        Map<DayOfWeek, List<TimeRangeDTO>> weeklyTimeRanges = weeklySlotsDTO.getWeeklyTimeRanges();
+    public List<AvailabilityDTO> addWeeklyAvailability(Tutor tutor, WeeklySlotsDTO slots) {
+        LocalDate startDate = slots.getStartDate();
+        LocalDate endDate = slots.getEndDate();
+        Map<DayOfWeek, List<TimeRangeDTO>> weeklyTimeRanges = slots.getWeeklyTimeRanges();
 
         availabilityRepo.deleteAvailabilitiesFor(
                 tutor,
@@ -92,6 +101,15 @@ public class TutorService extends UserService<Tutor> {
                 createNewAvailabilityFromTimeRange(tutor, timeRange, date);
             }
         }
+
+
+        return availabilityRepo.fetchAvailabilities(
+                        tutor,
+                        slots.getStartDate().atStartOfDay(),
+                        slots.getEndDate().plusDays(1).atStartOfDay())
+                .stream()
+                .map(a -> new AvailabilityDTO(a.getAvailabilityId(), a.getStartDateTime(), a.getEndDateTime()))
+                .collect(Collectors.toList());
     }
 
 
@@ -103,7 +121,6 @@ public class TutorService extends UserService<Tutor> {
             availabilityRepo.save(availability);
         }
     }
-
 
     @Transactional
     public void addOneTmeAvailability(Tutor tutor, LocalDateTime start, LocalDateTime end, EntityManager em) {
@@ -128,10 +145,7 @@ public class TutorService extends UserService<Tutor> {
     }
 
     @Transactional
-    public TutorUpdateDTO updateTutorInfo(String email, TutorUpdateDTO tutorData) {
-        Tutor tutor = tutorRepo.findByEmail(email)
-                .orElseThrow(() -> new ValidationException("Tutor not found"));
-
+    public TutorUpdateDTO updateTutorInfo(Tutor tutor, TutorUpdateDTO tutorData) {
         if (tutorData.getFirstName() != null) tutor.setFirstName(tutorData.getFirstName());
         if (tutorData.getLastName() != null) tutor.setLastName(tutorData.getLastName());
         if (tutorData.getPhone() != null) tutor.setPhone(tutorData.getPhone());
@@ -147,7 +161,6 @@ public class TutorService extends UserService<Tutor> {
         return fromTutorToDTO(tutor);
     }
 
-
     private Set<Specialization> getOrCreateSpecializations(Set<String> specializationNames) {
         return specializationNames.stream()
                 .map(name -> specializationRepo.findByName(name)
@@ -159,10 +172,7 @@ public class TutorService extends UserService<Tutor> {
                 .collect(Collectors.toSet());
     }
 
-    public List<AvailabilityDTO> getAvailabilities(String email, TimeFrameDTO timeFrame) {
-        Tutor tutor = tutorRepo.findByEmail(email)
-                .orElseThrow(() -> new ValidationException("Tutor not found"));
-
+    public List<AvailabilityDTO> getAvailabilities(Tutor tutor, TimeFrameDTO timeFrame) {
         return availabilityRepo.fetchAvailabilities(tutor, timeFrame.getStart(), timeFrame.getEnd())
                 .stream()
                 .map(a -> new AvailabilityDTO(a.getAvailabilityId(), a.getStartDateTime(), a.getEndDateTime()))
@@ -170,24 +180,12 @@ public class TutorService extends UserService<Tutor> {
     }
 
     @Transactional(readOnly = true)
-    public TutorUpdateDTO getTutorInfo(String email) {
-        Tutor tutor = tutorRepo.findByEmail(email)
-                .orElseThrow(() -> new ValidationException("Tutor not found"));
-
+    public TutorUpdateDTO getTutorInfo(Tutor tutor) {
         return fromTutorToDTO(tutor);
     }
 
-
-    private static TutorUpdateDTO fromTutorToDTO(Tutor tutor) {
-        return new TutorUpdateDTO(
-                tutor.getFirstName(),
-                tutor.getLastName(),
-                tutor.getPhone(),
-                tutor.getBirthDate(),
-                tutor.getSpecializations()
-                        .stream()
-                        .map(Specialization::getName)
-                        .collect(Collectors.toSet()),
-                tutor.getBio());
+    public Tutor fromEmail(String email) {
+        return tutorRepo.findByEmail(email)
+                .orElseThrow(() -> new ValidationException("Tutor not found"));
     }
 }
