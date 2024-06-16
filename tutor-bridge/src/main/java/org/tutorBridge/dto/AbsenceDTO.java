@@ -6,35 +6,42 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public class AbsenceDTO {
+    private Long absenceId;
+
     @NotNull(message = "Start date is required")
     @FutureOrPresent(message = "Start date must be in the future")
-    private LocalDateTime startDate;
+    private LocalDateTime start;
 
     @NotNull(message = "End date is required")
     @FutureOrPresent(message = "End date must be in the future")
-    private LocalDateTime endDate;
+    private LocalDateTime end;
 
     public AbsenceDTO() {
     }
 
-    public AbsenceDTO(LocalDateTime startDate, LocalDateTime endDate) {
-        this.startDate = startDate;
-        this.endDate = endDate;
+    public AbsenceDTO(Long absenceId, LocalDateTime start, LocalDateTime endDate) {
+        this.absenceId = absenceId;
+        this.start = start;
+        this.end = endDate;
     }
 
-    public LocalDateTime getStartDate() {
-        return startDate;
+    public AbsenceDTO(LocalDateTime start, LocalDateTime endDate) {
+        this(null, start, endDate);
     }
 
-    public void setStartDate(LocalDateTime startDate) {
-        this.startDate = startDate;
+    public LocalDateTime getStart() {
+        return start;
     }
 
-    public LocalDateTime getEndDate() {
-        return endDate;
+    public void setStart(LocalDateTime start) {
+        this.start = start;
     }
 
-    public void setEndDate(LocalDateTime endDate) {
-        this.endDate = endDate;
+    public LocalDateTime getEnd() {
+        return end;
+    }
+
+    public void setEnd(LocalDateTime end) {
+        this.end = end;
     }
 }

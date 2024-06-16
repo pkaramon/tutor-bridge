@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidAbsenceRange {
-    String message() default "Invalid date range: start date must be before end date";
+    String message() default "Invalid date range: getStart date must be before getEnd date";
 
     Class<?>[] groups() default {};
 

@@ -3,10 +3,10 @@ package org.tutorBridge.services;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.tutorBridge.repositories.*;
 import org.tutorBridge.dto.NewReservationDTO;
 import org.tutorBridge.dto.StudentUpdateDTO;
 import org.tutorBridge.entities.*;
+import org.tutorBridge.repositories.*;
 import org.tutorBridge.validation.ValidationException;
 
 import java.util.List;
@@ -27,12 +27,20 @@ public class StudentService extends UserService<Student> {
         this.reservationRepo = reservationRepo;
     }
 
+    private static StudentUpdateDTO fromStudentToDTO(Student student) {
+        return new StudentUpdateDTO(
+                student.getFirstName(),
+                student.getLastName(),
+                student.getPhone(),
+                student.getBirthDate(),
+                student.getLevel()
+        );
+    }
 
     @Transactional
     public void registerStudent(Student student) {
         registerUser(student);
     }
-
 
     @Override
     protected void saveUser(Student user) {
@@ -40,19 +48,19 @@ public class StudentService extends UserService<Student> {
     }
 
     @Transactional
-    public void updateStudentInfo(String email, StudentUpdateDTO studentData) {
+    public StudentUpdateDTO updateStudentInfo(String email, StudentUpdateDTO studentData) {
         Student student = getStudent(email);
 
         if (studentData.getFirstName() != null) student.setFirstName(studentData.getFirstName());
         if (studentData.getLastName() != null) student.setLastName(studentData.getLastName());
         if (studentData.getPhone() != null) student.setPhone(studentData.getPhone());
-        if (studentData.getEmail() != null) student.setEmail(studentData.getEmail());
         if (studentData.getBirthDate() != null) student.setBirthDate(studentData.getBirthDate());
         if (studentData.getLevel() != null) student.setLevel(studentData.getLevel());
 
         studentRepo.update(student);
-    }
 
+        return fromStudentToDTO(student);
+    }
 
     @Transactional
     public void makeReservations(String email, List<NewReservationDTO> reservationsData) {
@@ -93,5 +101,10 @@ public class StudentService extends UserService<Student> {
         Student student = studentRepo.findByEmail(email)
                 .orElseThrow(() -> new ValidationException("Student not found"));
         return student;
+    }
+
+    public StudentUpdateDTO getStudentInfo(String email) {
+        Student student = getStudent(email);
+        return fromStudentToDTO(student);
     }
 }

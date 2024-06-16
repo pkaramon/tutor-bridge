@@ -24,7 +24,6 @@ public class TutorRepo extends GenericRepo<Tutor, Long> {
         super(Tutor.class);
     }
 
-
     public Optional<Tutor> findByEmail(String email) {
         TypedQuery<Tutor> query = em.createQuery("from Tutor where email = :email", Tutor.class);
         query.setParameter("email", email);

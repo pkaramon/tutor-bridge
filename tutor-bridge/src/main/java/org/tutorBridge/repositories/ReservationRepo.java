@@ -15,14 +15,13 @@ public class ReservationRepo extends GenericRepo<Reservation, Long> {
     }
 
     public void cancelReservationsFor(Tutor tutor, LocalDateTime start, LocalDateTime end) {
-        em.createQuery("UPDATE Reservation r SET r.status = :status WHERE r.tutor = :tutor AND r.startDateTime >= :start AND r.endDateTime <= :end")
+        em.createQuery("UPDATE Reservation r SET r.status = :status" +
+                        " WHERE r.tutor = :tutor AND r.startDateTime < :end AND r.endDateTime > :start")
                 .setParameter("status", ReservationStatus.CANCELLED)
                 .setParameter("tutor", tutor)
                 .setParameter("start", start)
                 .setParameter("end", end)
                 .executeUpdate();
-
-
     }
 
     public void updateReservationStatus(Long reservationId, ReservationStatus status) {

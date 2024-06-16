@@ -59,26 +59,55 @@ public class TutorController {
     }
 
 
-    @PostMapping("/update")
-    public Map<String, String> updateTutor(@Valid @RequestBody TutorUpdateDTO tutorData, Authentication authentication) {
+    @PutMapping("/account")
+    public TutorUpdateDTO updateTutor(@Valid @RequestBody TutorUpdateDTO tutorData, Authentication authentication) {
         String email = authentication.getName();
-        tutorService.updateTutorInfo(email, tutorData);
-        return Collections.singletonMap("message", "Tutor information updated successfully");
+        return tutorService.updateTutorInfo(email, tutorData);
     }
 
-    @PostMapping("/availability/weekly")
+    @GetMapping("/account")
+    public TutorUpdateDTO getTutorInfo(Authentication authentication) {
+        String email = authentication.getName();
+        return tutorService.getTutorInfo(email);
+    }
+
+    @GetMapping("/availability")
+    public List<AvailabilityDTO> getAvailabilities(@RequestBody(required = false) TimeFrameDTO timeframe,
+                                                   Authentication authentication) {
+        timeframe = TimeFrameDTO.fillInEmptyFields(timeframe);
+        String email = authentication.getName();
+        return tutorService.getAvailabilities(email, timeframe);
+    }
+
+
+    @PutMapping("/availability")
     public List<AvailabilityDTO> setWeeklyAvailability(@Valid @RequestBody WeeklySlotsDTO weeklySlotsDTO,
                                                        Authentication authentication) {
         String email = authentication.getName();
         return tutorService.addWeeklyAvailability(email, weeklySlotsDTO);
     }
 
-    @PostMapping("/absences")
-    public Map<String, String> addAbsence(@Valid @RequestBody AbsenceDTO absenceDTO, Authentication authentication) {
+    @PostMapping("/absence")
+    public List<AbsenceDTO> addAbsence(@RequestBody @Valid AbsenceDTO absenceDTO, Authentication authentication) {
         String email = authentication.getName();
-        absenceService.addAbsence(email, absenceDTO.getStartDate(), absenceDTO.getEndDate());
-        return Collections.singletonMap("message", "Absence added successfully");
+        return absenceService.addAbsence(email, absenceDTO.getStart(), absenceDTO.getEnd());
     }
+
+    @DeleteMapping("/absence/{absenceId}")
+    public List<AbsenceDTO> deleteAbsence(@PathVariable(name = "absenceId") Long absenceId,
+                                          Authentication authentication) {
+        String email = authentication.getName();
+        return absenceService.deleteAbsence(email, absenceId);
+    }
+
+    @GetMapping("/absence")
+    public List<AbsenceDTO> getAbsences(@RequestBody(required = false) TimeFrameDTO timeframe,
+                                        Authentication authentication) {
+        timeframe = TimeFrameDTO.fillInEmptyFields(timeframe);
+        String email = authentication.getName();
+        return absenceService.getAbsences(email, timeframe);
+    }
+
 
     @PostMapping("/reservations/status")
     public Map<String, String> changeReservationsStatus(@Valid @RequestBody StatusChangesDTO changes,
@@ -87,5 +116,6 @@ public class TutorController {
         reservationService.changeReservationStatus(email, changes.getChanges());
         return Collections.singletonMap("message", "Reservation status changed successfully");
     }
+
 
 }

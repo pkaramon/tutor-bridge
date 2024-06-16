@@ -1,6 +1,5 @@
 package org.tutorBridge.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Past;
 import org.tutorBridge.entities.enums.StudentLevel;
 import org.tutorBridge.validation.ValidPhoneNumber;
@@ -13,13 +12,20 @@ public class StudentUpdateDTO implements Serializable {
     private String lastName;
     @ValidPhoneNumber
     private String phone;
-    @Email(message = "Email must be valid")
-    private String email;
     @Past(message = "Birthdate must be in the past")
     private LocalDate birthDate;
     private StudentLevel level;
 
-    // Getters and Setters
+    public StudentUpdateDTO() {
+    }
+
+    public StudentUpdateDTO(String firstName, String lastName, String phone, LocalDate birthDate, StudentLevel level) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phone = phone;
+        this.birthDate = birthDate;
+        this.level = level;
+    }
 
     public String getFirstName() {
         return firstName;
@@ -43,14 +49,6 @@ public class StudentUpdateDTO implements Serializable {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public LocalDate getBirthDate() {

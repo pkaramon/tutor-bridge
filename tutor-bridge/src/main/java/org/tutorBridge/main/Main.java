@@ -41,13 +41,13 @@ public class Main {
 
 //        try (var session = DB.getSessionFactory().openSession()) {
 //            TypedQuery<Availability> query = session.createQuery(
-//                    "FROM Availability a WHERE a.tutor = :tutor AND a.startDateTime <= :start AND a.endDateTime >= :end",
+//                    "FROM Availability a WHERE a.tutor = :tutor AND a.startDateTime <= :getStart AND a.endDateTime >= :getEnd",
 //                    Availability.class
 //            );
 //
 //            query.setParameter("tutor", tutorDao.findById(3L).orElseThrow());
-//            query.setParameter("start", LocalDateTime.of(2024, 7, 5, 18, 0, 0));
-//            query.setParameter("end", LocalDateTime.of(2024, 7, 5, 20, 0, 0));
+//            query.setParameter("getStart", LocalDateTime.of(2024, 7, 5, 18, 0, 0));
+//            query.setParameter("getEnd", LocalDateTime.of(2024, 7, 5, 20, 0, 0));
 //
 //            List<Availability> results = query.getResultList();
 //            System.out.println(results.size());
@@ -61,14 +61,14 @@ public class Main {
 //        Student student = studentDao.findById(1L).orElseThrow();
 //        Tutor tutor = tutorDao.findById(3L).orElseThrow();
 //        Specialization specialization = specializationDao.findById(1L).orElseThrow();
-//        LocalDateTime start = LocalDateTime.of(2024, 7, 5, 18, 0, 0);
-//        LocalDateTime end = LocalDateTime.of(2024, 7, 5, 20, 0, 0);
+//        LocalDateTime getStart = LocalDateTime.of(2024, 7, 5, 18, 0, 0);
+//        LocalDateTime getEnd = LocalDateTime.of(2024, 7, 5, 20, 0, 0);
 //
 //        try (var session = DB.getSessionFactory().openSession()) {
-//            System.out.println(tutorDao.isTutorAvailable(tutor, start, end, session));
+//            System.out.println(tutorDao.isTutorAvailable(tutor, getStart, getEnd, session));
 //        }
 //
-//        Reservation r = new Reservation(student, tutor, specialization, start, end);
+//        Reservation r = new Reservation(student, tutor, specialization, getStart, getEnd);
 //
 //        studentService.makeReservations(r);
 

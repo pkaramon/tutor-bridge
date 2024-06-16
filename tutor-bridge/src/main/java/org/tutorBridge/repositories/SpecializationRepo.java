@@ -4,7 +4,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 import org.tutorBridge.entities.Specialization;
+import org.tutorBridge.entities.Tutor;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -23,5 +25,13 @@ public class SpecializationRepo extends GenericRepo<Specialization, Long> {
                 .getResultList()
                 .stream()
                 .findFirst();
+    }
+
+    public List<Specialization> findFor(Tutor tutor) {
+        return em.createQuery("SELECT s FROM Specialization s " +
+                        "JOIN s.tutors t WHERE t = :tutor", Specialization.class)
+                .setParameter("tutor", tutor)
+                .getResultList();
+
     }
 }

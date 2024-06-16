@@ -1,6 +1,5 @@
 package org.tutorBridge.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Past;
 import org.tutorBridge.validation.ValidPhoneNumber;
 
@@ -13,29 +12,33 @@ public class TutorUpdateDTO implements Serializable {
     private String lastName;
     @ValidPhoneNumber
     private String phone;
-    @Email(message = "Email must be valid")
-    private String email;
     @Past(message = "Birthdate must be in the past")
     private LocalDate birthDate;
     private Set<String> specializations;
     private String bio;
+
+    public TutorUpdateDTO() {
+    }
+
+    public TutorUpdateDTO(String firstName, String lastName, String phone, LocalDate birthDate, Set<String> specializations, String bio) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phone = phone;
+        this.birthDate = birthDate;
+        this.specializations = specializations;
+        this.bio = bio;
+    }
 
 
     public String getFirstName() {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
 
     public String getLastName() {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
 
     public String getPhone() {
         return phone;
@@ -45,36 +48,19 @@ public class TutorUpdateDTO implements Serializable {
         this.phone = phone;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
 
     public LocalDate getBirthDate() {
         return birthDate;
-    }
-
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
     }
 
     public Set<String> getSpecializations() {
         return specializations;
     }
 
-    public void setSpecializations(Set<String> specializations) {
-        this.specializations = specializations;
-    }
 
     public String getBio() {
         return bio;
     }
 
-    public void setBio(String bio) {
-        this.bio = bio;
-    }
 }
 

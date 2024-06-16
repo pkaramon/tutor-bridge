@@ -4,16 +4,14 @@ import jakarta.persistence.EntityManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.tutorBridge.repositories.*;
-import org.tutorBridge.repositories.AvailabilityRepo;
-import org.tutorBridge.repositories.UserRepo;
-import org.tutorBridge.dto.AvailabilityDTO;
-import org.tutorBridge.dto.TimeRangeDTO;
-import org.tutorBridge.dto.TutorUpdateDTO;
-import org.tutorBridge.dto.WeeklySlotsDTO;
+import org.tutorBridge.dto.*;
 import org.tutorBridge.entities.Availability;
 import org.tutorBridge.entities.Specialization;
 import org.tutorBridge.entities.Tutor;
+import org.tutorBridge.repositories.AvailabilityRepo;
+import org.tutorBridge.repositories.SpecializationRepo;
+import org.tutorBridge.repositories.TutorRepo;
+import org.tutorBridge.repositories.UserRepo;
 import org.tutorBridge.validation.ValidationException;
 
 import java.time.DayOfWeek;
@@ -68,7 +66,10 @@ public class TutorService extends UserService<Tutor> {
 
         addWeeklyAvailability(tutor, availData);
 
-        return availabilityRepo.fetchAvailabilities(tutor, availData.getStartDate(), availData.getEndDate())
+        return availabilityRepo.fetchAvailabilities(
+                        tutor,
+                        availData.getStartDate().atStartOfDay(),
+                        availData.getEndDate().plusDays(1).atStartOfDay())
                 .stream()
                 .map(a -> new AvailabilityDTO(a.getAvailabilityId(), a.getStartDateTime(), a.getEndDateTime()))
                 .collect(Collectors.toList());
@@ -103,20 +104,11 @@ public class TutorService extends UserService<Tutor> {
         }
     }
 
-    private boolean hasConflict(List<Availability> existingAvailabilities, LocalDateTime newStart, LocalDateTime newEnd) {
-        for (Availability availability : existingAvailabilities) {
-            if (availability.getStartDateTime().isBefore(newEnd) && availability.getEndDateTime().isAfter(newStart)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 
     @Transactional
     public void addOneTmeAvailability(Tutor tutor, LocalDateTime start, LocalDateTime end, EntityManager em) {
         if (start.isAfter(end)) {
-            throw new ValidationException("Start time must be before end time");
+            throw new ValidationException("Start time must be before getEnd time");
         }
 
         checkForAvailabilityConflicts(tutor, start, end);
@@ -136,14 +128,13 @@ public class TutorService extends UserService<Tutor> {
     }
 
     @Transactional
-    public void updateTutorInfo(String email, TutorUpdateDTO tutorData) {
+    public TutorUpdateDTO updateTutorInfo(String email, TutorUpdateDTO tutorData) {
         Tutor tutor = tutorRepo.findByEmail(email)
                 .orElseThrow(() -> new ValidationException("Tutor not found"));
 
         if (tutorData.getFirstName() != null) tutor.setFirstName(tutorData.getFirstName());
         if (tutorData.getLastName() != null) tutor.setLastName(tutorData.getLastName());
         if (tutorData.getPhone() != null) tutor.setPhone(tutorData.getPhone());
-        if (tutorData.getEmail() != null) tutor.setEmail(tutorData.getEmail());
         if (tutorData.getBirthDate() != null) tutor.setBirthDate(tutorData.getBirthDate());
         if (tutorData.getBio() != null) tutor.setBio(tutorData.getBio());
         if (tutorData.getSpecializations() != null) {
@@ -152,7 +143,10 @@ public class TutorService extends UserService<Tutor> {
         }
 
         tutorRepo.update(tutor);
+
+        return fromTutorToDTO(tutor);
     }
+
 
     private Set<Specialization> getOrCreateSpecializations(Set<String> specializationNames) {
         return specializationNames.stream()
@@ -163,5 +157,37 @@ public class TutorService extends UserService<Tutor> {
                             return newSpec;
                         }))
                 .collect(Collectors.toSet());
+    }
+
+    public List<AvailabilityDTO> getAvailabilities(String email, TimeFrameDTO timeFrame) {
+        Tutor tutor = tutorRepo.findByEmail(email)
+                .orElseThrow(() -> new ValidationException("Tutor not found"));
+
+        return availabilityRepo.fetchAvailabilities(tutor, timeFrame.getStart(), timeFrame.getEnd())
+                .stream()
+                .map(a -> new AvailabilityDTO(a.getAvailabilityId(), a.getStartDateTime(), a.getEndDateTime()))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public TutorUpdateDTO getTutorInfo(String email) {
+        Tutor tutor = tutorRepo.findByEmail(email)
+                .orElseThrow(() -> new ValidationException("Tutor not found"));
+
+        return fromTutorToDTO(tutor);
+    }
+
+
+    private static TutorUpdateDTO fromTutorToDTO(Tutor tutor) {
+        return new TutorUpdateDTO(
+                tutor.getFirstName(),
+                tutor.getLastName(),
+                tutor.getPhone(),
+                tutor.getBirthDate(),
+                tutor.getSpecializations()
+                        .stream()
+                        .map(Specialization::getName)
+                        .collect(Collectors.toSet()),
+                tutor.getBio());
     }
 }

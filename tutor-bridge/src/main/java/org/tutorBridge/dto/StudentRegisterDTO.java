@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import org.tutorBridge.entities.Student;
 import org.tutorBridge.entities.enums.StudentLevel;
-import org.tutorBridge.entities.enums.UserType;
 import org.tutorBridge.validation.ValidPhoneNumber;
 
 import java.io.Serializable;
@@ -29,20 +28,18 @@ public class StudentRegisterDTO implements Serializable {
     private String email;
     @NotBlank(message = "Password is required")
     private String password;
-    private UserType type;
     @NotNull(message = "Birthdate is required")
     @Past(message = "Birthdate must be in the past")
     private LocalDate birthDate;
     @NotNull(message = "Student level is required")
     private StudentLevel level;
 
-    public StudentRegisterDTO(String firstName, String lastName, String phone, String email, String password, UserType type, LocalDate birthDate, StudentLevel level) {
+    public StudentRegisterDTO(String firstName, String lastName, String phone, String email, String password, LocalDate birthDate, StudentLevel level) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.phone = phone;
         this.email = email;
         this.password = password;
-        this.type = type;
         this.birthDate = birthDate;
         this.level = level;
     }
@@ -70,10 +67,6 @@ public class StudentRegisterDTO implements Serializable {
         return password;
     }
 
-    public UserType getType() {
-        return type;
-    }
-
     public LocalDate getBirthDate() {
         return birthDate;
     }
@@ -92,14 +85,13 @@ public class StudentRegisterDTO implements Serializable {
                 Objects.equals(this.phone, entity.phone) &&
                 Objects.equals(this.email, entity.email) &&
                 Objects.equals(this.password, entity.password) &&
-                Objects.equals(this.type, entity.type) &&
                 Objects.equals(this.birthDate, entity.birthDate) &&
                 Objects.equals(this.level, entity.level);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstName, lastName, phone, email, password, type, birthDate, level);
+        return Objects.hash(firstName, lastName, phone, email, password, birthDate, level);
     }
 
     @Override
@@ -110,7 +102,6 @@ public class StudentRegisterDTO implements Serializable {
                 "phone = " + phone + ", " +
                 "email = " + email + ", " +
                 "password = " + password + ", " +
-                "type = " + type + ", " +
                 "birthDate = " + birthDate + ", " +
                 "level = " + level + ")";
     }

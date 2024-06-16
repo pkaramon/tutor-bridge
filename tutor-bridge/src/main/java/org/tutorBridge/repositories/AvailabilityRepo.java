@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 import org.tutorBridge.entities.Availability;
 import org.tutorBridge.entities.Tutor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -36,8 +35,7 @@ public class AvailabilityRepo extends GenericRepo<Availability, Long> {
     }
 
 
-
-    public List<Availability> fetchAvailabilities(Tutor tutor, LocalDate start, LocalDate end) {
+    public List<Availability> fetchAvailabilities(Tutor tutor, LocalDateTime start, LocalDateTime end) {
         TypedQuery<Availability> query = em.createQuery(
                 "FROM Availability a " +
                         "WHERE a.tutor = :tutor AND a.startDateTime < :end AND a.endDateTime > :start " +
@@ -45,9 +43,10 @@ public class AvailabilityRepo extends GenericRepo<Availability, Long> {
                 Availability.class
         );
         query.setParameter("tutor", tutor);
-        query.setParameter("start", start.atStartOfDay());
-        query.setParameter("end", end.plusDays(1).atStartOfDay());
+        query.setParameter("start", start);
+        query.setParameter("end", end);
         return query.getResultList();
     }
+
 
 }

@@ -2,10 +2,7 @@ package org.tutorBridge.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.tutorBridge.dto.NewReservationsDTO;
 import org.tutorBridge.dto.StudentRegisterDTO;
 import org.tutorBridge.dto.StudentUpdateDTO;
@@ -35,17 +32,21 @@ public class StudentController {
                 studentData.getLevel(),
                 studentData.getBirthDate()
         );
-
         studentService.registerStudent(student);
         return Collections.singletonMap("message", "Student registered successfully");
     }
 
-    @PostMapping("/update")
-    public Map<String, String> updateStudent(@Valid @RequestBody StudentUpdateDTO studentData,
-                                             Authentication authentication) {
+    @PutMapping("/account")
+    public StudentUpdateDTO updateStudent(@Valid @RequestBody StudentUpdateDTO studentData,
+                                          Authentication authentication) {
         String email = authentication.getName();
-        studentService.updateStudentInfo(email, studentData);
-        return Collections.singletonMap("message", "Student information updated successfully");
+        return studentService.updateStudentInfo(email, studentData);
+    }
+
+    @GetMapping("/account")
+    public StudentUpdateDTO getStudentInfo(Authentication authentication) {
+        String email = authentication.getName();
+        return studentService.getStudentInfo(email);
     }
 
     @PostMapping("/reservation")
