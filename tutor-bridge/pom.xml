@@ -15,7 +15,6 @@
     </properties>
 
     <dependencies>
-        <!-- Existing Dependencies -->
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc10</artifactId>

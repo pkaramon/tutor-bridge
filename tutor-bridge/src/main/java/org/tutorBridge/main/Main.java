@@ -70,7 +70,7 @@ public class Main {
 //
 //        Reservation r = new Reservation(student, tutor, specialization, start, end);
 //
-//        studentService.makeReservation(r);
+//        studentService.makeReservations(r);
 
 
 //        Tutor tutor = tutorDao.findById(3L).orElseThrow();

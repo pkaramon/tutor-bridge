@@ -4,7 +4,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
-import org.tutorBridge.entities.*;
+import org.tutorBridge.entities.Absence;
+import org.tutorBridge.entities.Availability;
+import org.tutorBridge.entities.Reservation;
+import org.tutorBridge.entities.Tutor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,6 +40,15 @@ public class TutorDao extends GenericDao<Tutor, Long> {
         query.setParameter("start", start.atStartOfDay());
         query.setParameter("end", end.plusDays(1).atStartOfDay());
         return query.getResultList();
+    }
+
+    public void deleteAvailabilities(Tutor tutor, LocalDate start, LocalDate end) {
+        em.createQuery(
+                        "DELETE FROM Availability a WHERE a.tutor = :tutor AND a.startDateTime >= :start AND a.endDateTime < :end"
+                ).setParameter("tutor", tutor)
+                .setParameter("start", start.atStartOfDay())
+                .setParameter("end", end.plusDays(1).atStartOfDay())
+                .executeUpdate();
     }
 
     public boolean hasTutorConflictingAvailability(Tutor tutor, LocalDateTime start, LocalDateTime end) {

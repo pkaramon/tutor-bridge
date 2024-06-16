@@ -63,8 +63,9 @@ public class Tutor extends User {
         this.specializations.addAll(specializations);
     }
 
-    public void addSpecialization(Specialization specialization) {
-        specializations.add(specialization);
+
+    public void addReservation(Reservation reservation) {
+        reservations.add(reservation);
     }
 
     public Set<Absence> getAbsences() {

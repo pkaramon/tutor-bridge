@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Past;
 import org.tutorBridge.entities.Student;
 import org.tutorBridge.entities.enums.StudentLevel;
 import org.tutorBridge.entities.enums.UserType;
-import org.tutorBridge.validation.EnumValue;
 import org.tutorBridge.validation.ValidPhoneNumber;
 
 import java.io.Serializable;

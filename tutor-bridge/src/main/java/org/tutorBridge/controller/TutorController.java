@@ -1,16 +1,12 @@
 package org.tutorBridge.controller;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.tutorBridge.dao.TutorDao;
-import org.tutorBridge.dto.TutorRegisterDTO;
-import org.tutorBridge.dto.TutorSpecializationDTO;
+import org.tutorBridge.dto.*;
 import org.tutorBridge.entities.Specialization;
 import org.tutorBridge.entities.Tutor;
-import org.tutorBridge.entities.User;
+import org.tutorBridge.services.AbsenceService;
 import org.tutorBridge.services.TutorService;
 
 import java.util.Collections;
@@ -23,11 +19,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/tutors")
 public class TutorController {
     private final TutorService tutorService;
-    @PersistenceContext
-    private EntityManager em;
+    private final AbsenceService absenceService;
 
-    public TutorController(TutorService tutorService, TutorDao tutorDao) {
+    public TutorController(TutorService tutorService, AbsenceService absenceService) {
         this.tutorService = tutorService;
+        this.absenceService = absenceService;
     }
 
     @PostMapping("/register")
@@ -50,21 +46,6 @@ public class TutorController {
         return Collections.singletonMap("message", "Tutor registered successfully");
     }
 
-    @GetMapping("/hello")
-    public String hello() {
-        // find all users
-        List<User> users = em.createQuery("SELECT u FROM User u", User.class).getResultList();
-        return users.stream().map(User::getFirstName).reduce("", (a, b) -> a + " " + b);
-    }
-
-    @PostMapping("/specializations")
-    public Map<String, String> updateSpecializations(@Valid @RequestBody TutorSpecializationDTO tutorSpecializationDTO,
-                                                     Authentication authentication) {
-        String email = authentication.getName();
-        tutorService.updateTutorSpecializations(email, tutorSpecializationDTO.getSpecializations());
-        return Collections.singletonMap("message", "Specializations updated successfully");
-    }
-
     @GetMapping("/specializations")
     public TutorSpecializationDTO getTutorSpecializations(Authentication authentication) {
         String email = authentication.getName();
@@ -72,6 +53,29 @@ public class TutorController {
                 .map(Specialization::getName)
                 .collect(Collectors.toSet());
         return new TutorSpecializationDTO(specializations);
+    }
+
+
+    @PostMapping("/update")
+    public Map<String, String> updateTutor(@Valid @RequestBody TutorUpdateDTO tutorData, Authentication authentication) {
+        String email = authentication.getName();
+        tutorService.updateTutorInfo(email, tutorData);
+        return Collections.singletonMap("message", "Tutor information updated successfully");
+    }
+
+    @PostMapping("/availability/weekly")
+    public List<AvailabilityDTO> setWeeklyAvailability(@Valid @RequestBody WeeklySlotsDTO weeklySlotsDTO,
+                                                       Authentication authentication) {
+        String email = authentication.getName();
+        return tutorService.addWeeklyAvailability(email, weeklySlotsDTO);
+    }
+
+    @PostMapping("/absences")
+    public Map<String, String> addAbsence(@Valid @RequestBody AbsenceDTO absenceDTO, Authentication authentication) {
+        String email = authentication.getName();
+
+        absenceService.addAbsence(email, absenceDTO.getStartDate(), absenceDTO.getEndDate());
+        return Collections.singletonMap("message", "Absence added successfully");
     }
 
 
