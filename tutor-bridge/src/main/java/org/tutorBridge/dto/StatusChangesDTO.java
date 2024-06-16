@@ -15,4 +15,8 @@ public class StatusChangesDTO {
     public List<StatusChangeDTO> getChanges() {
         return changes;
     }
+
+    public void setChanges(List<StatusChangeDTO> changes) {
+        this.changes = changes;
+    }
 }

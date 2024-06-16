@@ -44,4 +44,12 @@ public class AbsenceDTO {
     public void setEnd(LocalDateTime end) {
         this.end = end;
     }
+
+    public Long getAbsenceId() {
+        return absenceId;
+    }
+
+    public void setAbsenceId(Long absenceId) {
+        this.absenceId = absenceId;
+    }
 }

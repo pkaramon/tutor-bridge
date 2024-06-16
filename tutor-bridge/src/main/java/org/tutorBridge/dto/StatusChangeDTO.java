@@ -10,8 +10,7 @@ public class StatusChangeDTO {
     private ReservationStatus status;
 
 
-    public StatusChangeDTO() {
-    }
+    public StatusChangeDTO() { }
 
     public Long getReservationId() {
         return reservationId;
@@ -22,4 +21,11 @@ public class StatusChangeDTO {
         return status;
     }
 
+    public void setReservationId(Long reservationId) {
+        this.reservationId = reservationId;
+    }
+
+    public void setStatus(ReservationStatus status) {
+        this.status = status;
+    }
 }

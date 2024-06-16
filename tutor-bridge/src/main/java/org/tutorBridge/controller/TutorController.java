@@ -7,6 +7,7 @@ import org.tutorBridge.dto.*;
 import org.tutorBridge.entities.Specialization;
 import org.tutorBridge.entities.Tutor;
 import org.tutorBridge.services.AbsenceService;
+import org.tutorBridge.services.PlanService;
 import org.tutorBridge.services.ReservationService;
 import org.tutorBridge.services.TutorService;
 
@@ -22,11 +23,13 @@ public class TutorController {
     private final TutorService tutorService;
     private final AbsenceService absenceService;
     private final ReservationService reservationService;
+    private final PlanService planService;
 
-    public TutorController(TutorService tutorService, AbsenceService absenceService, ReservationService reservationService) {
+    public TutorController(TutorService tutorService, AbsenceService absenceService, ReservationService reservationService, PlanService planService) {
         this.tutorService = tutorService;
         this.absenceService = absenceService;
         this.reservationService = reservationService;
+        this.planService = planService;
     }
 
     @PostMapping("/register")
@@ -117,5 +120,9 @@ public class TutorController {
         return Collections.singletonMap("message", "Reservation status changed successfully");
     }
 
-
+    @GetMapping("/plan")
+    public PlanResponseDTO getPlan(Authentication authentication, TimeFrameDTO timeframe) {
+        String email = authentication.getName();
+        return planService.getPlanForTutor(email, timeframe);
+    }
 }

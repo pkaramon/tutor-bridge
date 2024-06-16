@@ -16,8 +16,6 @@ public class StudentUpdateDTO implements Serializable {
     private LocalDate birthDate;
     private StudentLevel level;
 
-    public StudentUpdateDTO() {
-    }
 
     public StudentUpdateDTO(String firstName, String lastName, String phone, LocalDate birthDate, StudentLevel level) {
         this.firstName = firstName;
@@ -25,6 +23,9 @@ public class StudentUpdateDTO implements Serializable {
         this.phone = phone;
         this.birthDate = birthDate;
         this.level = level;
+    }
+
+    public StudentUpdateDTO() {
     }
 
     public String getFirstName() {

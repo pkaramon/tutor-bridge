@@ -2,6 +2,7 @@ package org.tutorBridge.repositories;
 
 import org.springframework.stereotype.Repository;
 import org.tutorBridge.entities.Reservation;
+import org.tutorBridge.entities.Student;
 import org.tutorBridge.entities.Tutor;
 import org.tutorBridge.entities.enums.ReservationStatus;
 
@@ -45,4 +46,25 @@ public class ReservationRepo extends GenericRepo<Reservation, Long> {
                 .executeUpdate();
     }
 
+    public List<Reservation> findValidReservationsFor(Tutor tutor, LocalDateTime start, LocalDateTime end) {
+        return em.createQuery("FROM Reservation r " +
+                                "WHERE r.tutor = :tutor AND r.startDateTime < :end AND r.endDateTime > :start " +
+                                "AND r.status != :status",
+                        Reservation.class)
+                .setParameter("tutor", tutor)
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .setParameter("status", ReservationStatus.CANCELLED)
+                .getResultList();
+    }
+
+    public List<Reservation> findReservationsForStudent(Student student, LocalDateTime start, LocalDateTime end) {
+        return em.createQuery("FROM Reservation r " +
+                                "WHERE r.student = :student AND r.startDateTime < :end AND r.endDateTime > :start ",
+                        Reservation.class)
+                .setParameter("student", student)
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .getResultList();
+    }
 }

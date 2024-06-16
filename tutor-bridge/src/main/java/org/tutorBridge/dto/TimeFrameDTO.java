@@ -15,6 +15,9 @@ public final class TimeFrameDTO {
         this.end = end;
     }
 
+    public TimeFrameDTO() {
+    }
+
     public static LocalDateTime getDefaultStart() {
         return LocalDateTime.now();
     }

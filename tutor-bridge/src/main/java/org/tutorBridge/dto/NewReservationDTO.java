@@ -11,6 +11,9 @@ public class NewReservationDTO {
     @NotNull(message = "Specialization ID is required")
     private Long specializationId;
 
+    public NewReservationDTO() {
+    }
+
     public Long getAvailabilityId() {
         return availabilityId;
     }
@@ -21,5 +24,9 @@ public class NewReservationDTO {
 
     public Long getSpecializationId() {
         return specializationId;
+    }
+
+    public void setReservationId(Long reservationId) {
+        this.reservationId = reservationId;
     }
 }

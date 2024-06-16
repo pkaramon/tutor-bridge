@@ -1,14 +1,15 @@
 package org.tutorBridge.dto;
 
 
-import org.tutorBridge.entities.Availability;
-
 import java.time.LocalDateTime;
 
 public class AvailabilityDTO {
     private Long availabilityId;
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
+
+    public AvailabilityDTO() {
+    }
 
     public AvailabilityDTO(LocalDateTime startDateTime, LocalDateTime endDateTime) {
         this.startDateTime = startDateTime;
@@ -21,8 +22,12 @@ public class AvailabilityDTO {
         this.endDateTime = endDateTime;
     }
 
-    public static AvailabilityDTO fromAvailability(Availability availability) {
-        return new AvailabilityDTO(availability.getStartDateTime(), availability.getEndDateTime());
+    public Long getAvailabilityId() {
+        return availabilityId;
+    }
+
+    public void setAvailabilityId(Long availabilityId) {
+        this.availabilityId = availabilityId;
     }
 
     public LocalDateTime getStartDateTime() {
@@ -39,13 +44,5 @@ public class AvailabilityDTO {
 
     public void setEndDateTime(LocalDateTime endDateTime) {
         this.endDateTime = endDateTime;
-    }
-
-    public Long getAvailabilityId() {
-        return availabilityId;
-    }
-
-    public void setAvailabilityId(Long availabilityId) {
-        this.availabilityId = availabilityId;
     }
 }

@@ -16,4 +16,8 @@ public class NewReservationsDTO {
     public List<NewReservationDTO> getReservations() {
         return reservations;
     }
+
+    public void setReservations(List<NewReservationDTO> reservations) {
+        this.reservations = reservations;
+    }
 }

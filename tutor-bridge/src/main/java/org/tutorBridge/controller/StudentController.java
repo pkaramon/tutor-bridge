@@ -3,10 +3,9 @@ package org.tutorBridge.controller;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.tutorBridge.dto.NewReservationsDTO;
-import org.tutorBridge.dto.StudentRegisterDTO;
-import org.tutorBridge.dto.StudentUpdateDTO;
+import org.tutorBridge.dto.*;
 import org.tutorBridge.entities.Student;
+import org.tutorBridge.services.PlanService;
 import org.tutorBridge.services.StudentService;
 
 import java.util.Collections;
@@ -16,9 +15,11 @@ import java.util.Map;
 @RequestMapping("/api/students")
 public class StudentController {
     private final StudentService studentService;
+    private final PlanService planService;
 
-    public StudentController(StudentService studentService) {
+    public StudentController(StudentService studentService, PlanService planService) {
         this.studentService = studentService;
+        this.planService = planService;
     }
 
     @PostMapping("/register")
@@ -56,5 +57,14 @@ public class StudentController {
         studentService.makeReservations(email, reservations.getReservations());
         return Collections.singletonMap("message", "Reservations made successfully");
     }
+
+    @GetMapping("/plan")
+    public PlanResponseDTO getPlan(
+            @RequestBody(required = false) TimeFrameDTO timeframe,
+            Authentication authentication) {
+        String email = authentication.getName();
+        return planService.getPlanForStudent(email, timeframe);
+    }
+
 
 }

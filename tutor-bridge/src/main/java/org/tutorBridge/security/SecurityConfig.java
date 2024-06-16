@@ -2,7 +2,6 @@ package org.tutorBridge.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -33,8 +32,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/auth/login", "/api/tutors/register", "/api/students/register").permitAll()
-                        .requestMatchers("/api/student/**").hasAuthority("STUDENT")
-                        .requestMatchers("/api/tutor/**").hasAuthority("TUTOR")
+                        .requestMatchers("/api/students/**").hasAuthority("STUDENT")
+                        .requestMatchers("/api/tutors/**").hasAuthority("TUTOR")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
