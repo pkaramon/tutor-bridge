@@ -16,6 +16,7 @@ public record PlanEntryDTO(
         String tutorPhone,
         String tutorEmail,
         String specialization,
+        String studentLevel,
         String status
 ) {
 }

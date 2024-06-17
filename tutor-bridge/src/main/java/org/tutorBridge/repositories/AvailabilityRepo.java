@@ -75,4 +75,13 @@ public class AvailabilityRepo extends GenericRepo<Availability, Long> {
 
         em.persist(availability);
     }
+
+    public List<Availability> findAvailabilitiesByTutorAndTimeFrame(Tutor tutor, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        return em.createQuery("FROM Availability a WHERE a.tutor = :tutor AND a.startDateTime >= :startDateTime AND a.endDateTime <= :endDateTime", Availability.class)
+                .setParameter("tutor", tutor)
+                .setParameter("startDateTime", startDateTime)
+                .setParameter("endDateTime", endDateTime)
+                .getResultList();
+    }
+
 }

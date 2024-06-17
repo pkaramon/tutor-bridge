@@ -2,17 +2,16 @@ package org.tutorBridge.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.tutorBridge.dto.AvailabilityDTO;
-import org.tutorBridge.dto.TimeFrameDTO;
-import org.tutorBridge.dto.TimeRangeDTO;
-import org.tutorBridge.dto.WeeklySlotsDTO;
+import org.tutorBridge.dto.*;
 import org.tutorBridge.entities.Availability;
 import org.tutorBridge.entities.Tutor;
 import org.tutorBridge.repositories.AvailabilityRepo;
+import org.tutorBridge.repositories.TutorRepo;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,18 +20,40 @@ import java.util.stream.Collectors;
 @Service
 public class AvailabilityService {
     private final AvailabilityRepo availabilityRepo;
+    private final TutorRepo tutorRepo;
 
-    public AvailabilityService(AvailabilityRepo availabilityRepo) {
+    public AvailabilityService(AvailabilityRepo availabilityRepo, TutorRepo tutorRepo) {
         this.availabilityRepo = availabilityRepo;
+        this.tutorRepo = tutorRepo;
+    }
+
+    @Transactional(readOnly = true)
+    public List<TutorSearchResultDTO> searchAvailableTutors(TutorSearchRequestDTO request) {
+        List<Tutor> tutors = tutorRepo.findTutorsWithAvailabilities(request.getSpecializationName(), request.getStartDateTime(), request.getEndDateTime());
+
+        return tutors.stream()
+                .map(tutor -> {
+                    List<AvailabilityDTO> availabilities = fromAvailabilitiesToDTOS(tutor.getAvailabilities());
+                    return new TutorSearchResultDTO(
+                            tutor.getUserId(),
+                            tutor.getFirstName(),
+                            tutor.getLastName(),
+                            tutor.getPhone(),
+                            tutor.getEmail(),
+                            tutor.getBio(),
+                            availabilities
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
 
+    @Transactional(readOnly = true)
     public List<AvailabilityDTO> getAvailabilities(Tutor tutor, TimeFrameDTO timeFrame) {
         return fromAvailabilitiesToDTOS(
                 availabilityRepo.fetchOverlapping(tutor, timeFrame.getStart(), timeFrame.getEnd())
         );
     }
-
 
     @Transactional
     public List<AvailabilityDTO> addWeeklyAvailability(Tutor tutor, WeeklySlotsDTO slots) {
@@ -73,7 +94,7 @@ public class AvailabilityService {
         }
     }
 
-    private List<AvailabilityDTO> fromAvailabilitiesToDTOS(List<Availability> availabilities) {
+    private List<AvailabilityDTO> fromAvailabilitiesToDTOS(Collection<Availability> availabilities) {
         return availabilities.stream()
                 .map(a -> new AvailabilityDTO(a.getAvailabilityId(), a.getStartDateTime(), a.getEndDateTime()))
                 .collect(Collectors.toList());

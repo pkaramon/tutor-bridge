@@ -53,4 +53,20 @@ public class TutorRepo extends GenericRepo<Tutor, Long> {
         return !results.isEmpty();
     }
 
+
+    public List<Tutor> findTutorsWithAvailabilities(String specializationName, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        return em.createQuery(
+                        "SELECT DISTINCT t FROM Tutor t " +
+                                "JOIN t.specializations s " +
+                                "LEFT JOIN FETCH t.availabilities a " +
+                                "WHERE lower(s.name) = lower(:specializationName) " +
+                                "AND (a.startDateTime >= :startDateTime AND a.endDateTime <= :endDateTime OR a.availabilityId IS NULL)",
+                        Tutor.class)
+                .setParameter("specializationName", specializationName.toLowerCase())
+                .setParameter("startDateTime", startDateTime)
+                .setParameter("endDateTime", endDateTime)
+                .getResultList();
+    }
+
+
 }

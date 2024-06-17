@@ -19,13 +19,9 @@ import java.util.stream.Collectors;
 @Service
 public class PlanService {
     private final ReservationRepo reservationRepo;
-    private final TutorRepo tutorRepo;
-    private final StudentRepo studentRepo;
 
     public PlanService(ReservationRepo reservationRepo, TutorRepo tutorRepo, StudentRepo studentRepo) {
         this.reservationRepo = reservationRepo;
-        this.tutorRepo = tutorRepo;
-        this.studentRepo = studentRepo;
     }
 
     private static PlanResponseDTO fromReservationsToPlanResponseDTO(List<Reservation> reservations) {
@@ -47,6 +43,7 @@ public class PlanService {
                     tutor.getPhone(),
                     tutor.getEmail(),
                     specialization.getName(),
+                    student.getLevel().toString(),
                     reservation.getStatus().toString()
             );
         }).collect(Collectors.toList());

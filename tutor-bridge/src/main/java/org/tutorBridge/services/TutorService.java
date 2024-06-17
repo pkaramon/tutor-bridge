@@ -114,13 +114,6 @@ public class TutorService extends UserService<Tutor> {
                 .collect(Collectors.toSet());
     }
 
-    public List<AvailabilityDTO> getAvailabilities(Tutor tutor, TimeFrameDTO timeFrame) {
-        return availabilityRepo.fetchOverlapping(tutor, timeFrame.getStart(), timeFrame.getEnd())
-                .stream()
-                .map(a -> new AvailabilityDTO(a.getAvailabilityId(), a.getStartDateTime(), a.getEndDateTime()))
-                .collect(Collectors.toList());
-    }
-
     @Transactional(readOnly = true)
     public TutorUpdateDTO getTutorInfo(Tutor tutor) {
         return fromTutorToDTO(tutor);

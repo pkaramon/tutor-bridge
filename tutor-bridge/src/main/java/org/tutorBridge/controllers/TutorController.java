@@ -1,4 +1,4 @@
-package org.tutorBridge.controller;
+package org.tutorBridge.controllers;
 
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;

@@ -20,7 +20,7 @@ public class Tutor extends User {
             inverseJoinColumns = @JoinColumn(name = "SPECIALIZATIONID")
     )
     private final Set<Specialization> specializations = new HashSet<>();
-    @Column(name = "BIO", columnDefinition = "nclob", length = 1000000, nullable = false)
+    @Column(name = "BIO", length = 4000, nullable = false)
     @Nationalized
     private String bio;
     @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL, orphanRemoval = true)

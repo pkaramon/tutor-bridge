@@ -8,7 +8,6 @@ import jakarta.validation.Validator;
 import org.tutorBridge.validation.ValidationException;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -22,8 +21,11 @@ public class GenericRepo<T, ID extends Serializable> {
 
     public GenericRepo(Class<T> entityClass) {
         this.entityClass = entityClass;
-        var factory = Validation.buildDefaultValidatorFactory();
-        this.validator = factory.getValidator();
+        try (var factory = Validation.buildDefaultValidatorFactory()) {
+            this.validator = factory.getValidator();
+        } catch (Exception e) {
+            throw new RuntimeException("Could not create validator", e);
+        }
     }
 
     public void save(T entity) {
@@ -35,15 +37,10 @@ public class GenericRepo<T, ID extends Serializable> {
         return Optional.ofNullable(em.find(entityClass, id));
     }
 
-    public List<T> findAll() {
-        return em.createQuery("from " + entityClass.getName(), entityClass).getResultList();
-    }
-
     public void update(T entity) {
         validateEntity(entity);
         em.merge(entity);
     }
-
 
     public void delete(T entity) {
         em.remove(entity);

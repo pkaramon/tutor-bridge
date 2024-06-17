@@ -22,13 +22,11 @@ public class AbsenceService {
     private final AbsenceRepo absenceRepo;
     private final AvailabilityRepo availabilityRepo;
     private final ReservationRepo reservationRepo;
-    private final TutorRepo tutorRepo;
 
     public AbsenceService(AbsenceRepo absenceRepo, AvailabilityRepo availabilityRepo, ReservationRepo reservationRepo, TutorRepo tutorRepo) {
         this.absenceRepo = absenceRepo;
         this.availabilityRepo = availabilityRepo;
         this.reservationRepo = reservationRepo;
-        this.tutorRepo = tutorRepo;
     }
 
     @Transactional

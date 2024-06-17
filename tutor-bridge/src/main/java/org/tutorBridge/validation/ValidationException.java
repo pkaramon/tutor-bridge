@@ -16,7 +16,4 @@ public class ValidationException extends RuntimeException {
         this.messages = messages;
     }
 
-    public Collection<String> getMessages() {
-        return messages;
-    }
 }

@@ -1,15 +1,17 @@
-package org.tutorBridge.controller;
+package org.tutorBridge.controllers;
 
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.tutorBridge.dto.*;
 import org.tutorBridge.entities.Student;
+import org.tutorBridge.services.AvailabilityService;
 import org.tutorBridge.services.PlanService;
 import org.tutorBridge.services.ReservationService;
 import org.tutorBridge.services.StudentService;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -18,13 +20,17 @@ public class StudentController {
     private final StudentService studentService;
     private final PlanService planService;
     private final ReservationService reservationService;
+    private final AvailabilityService availabilityService;
 
     public StudentController(StudentService studentService,
                              PlanService planService,
-                             ReservationService reservationService) {
+                             ReservationService reservationService,
+                             AvailabilityService availabilityService
+    ) {
         this.studentService = studentService;
         this.planService = planService;
         this.reservationService = reservationService;
+        this.availabilityService = availabilityService;
     }
 
     @PostMapping("/register")
@@ -72,4 +78,8 @@ public class StudentController {
     }
 
 
+    @GetMapping("/search-tutors")
+    public List<TutorSearchResultDTO> searchTutors(@Valid @RequestBody TutorSearchRequestDTO searchRequest) {
+        return availabilityService.searchAvailableTutors(searchRequest);
+    }
 }
