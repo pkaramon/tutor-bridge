@@ -54,12 +54,11 @@ public class PlanService {
         return new PlanResponseDTO(planEntries);
     }
 
-
     @Transactional(readOnly = true)
     public PlanResponseDTO getPlanForTutor(Tutor tutor, TimeFrameDTO timeframe) {
         timeframe = TimeFrameDTO.fillInEmptyFields(timeframe);
         List<Reservation> reservations = reservationRepo
-                .findValidReservationsFor(tutor, timeframe.getStart(), timeframe.getEnd());
+                .findOverlapping(tutor, timeframe.getStart(), timeframe.getEnd());
         return fromReservationsToPlanResponseDTO(reservations);
     }
 
@@ -67,7 +66,7 @@ public class PlanService {
     public PlanResponseDTO getPlanForStudent(Student student, TimeFrameDTO timeframe) {
         timeframe = TimeFrameDTO.fillInEmptyFields(timeframe);
         List<Reservation> reservations = reservationRepo
-                .findReservationsForStudent(student, timeframe.getStart(), timeframe.getEnd());
+                .findOverlapping(student, timeframe.getStart(), timeframe.getEnd());
         return fromReservationsToPlanResponseDTO(reservations);
     }
 }

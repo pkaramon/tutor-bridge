@@ -5,7 +5,7 @@ import jakarta.validation.ConstraintValidatorContext;
 
 import java.util.regex.Pattern;
 
-public class PhoneNumberValidator implements ConstraintValidator<ValidPhoneNumber, String> {
+public class PhoneNumberValidator implements ConstraintValidator<PhoneNumber, String> {
     private static final Pattern PHONE_PATTERN = Pattern.compile("^\\+?[0-9. ()-]{7,25}$");
 
     @Override

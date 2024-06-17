@@ -7,7 +7,16 @@ import org.tutorBridge.entities.enums.ReservationStatus;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "RESERVATION")
+@Table(name = "RESERVATION",
+        indexes = {
+                @Index(name = "Reservation_idx_studentID", columnList = "STUDENTID"),
+                @Index(name = "Reservation_idx_tutorID", columnList = "TUTORID"),
+                @Index(name = "Reservation_idx_specializationID", columnList = "SPECIALIZATIONID"),
+                @Index(name = "Reservation_idx_startDate", columnList = "STARTDATE"),
+                @Index(name = "Reservation_idx_endDate", columnList = "ENDDATE"),
+                @Index(name = "Reservation_idx_status", columnList = "STATUS")
+        }
+)
 public class Reservation {
 
     @Id

@@ -8,7 +8,6 @@ import org.tutorBridge.entities.enums.ReservationStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class ReservationRepo extends GenericRepo<Reservation, Long> {
@@ -16,7 +15,7 @@ public class ReservationRepo extends GenericRepo<Reservation, Long> {
         super(Reservation.class);
     }
 
-    public void cancelReservationsFor(Tutor tutor, LocalDateTime start, LocalDateTime end) {
+    public void cancelAllOverlapping(Tutor tutor, LocalDateTime start, LocalDateTime end) {
         em.createQuery("UPDATE Reservation r SET r.status = :status" +
                         " WHERE r.tutor = :tutor AND r.startDateTime < :end AND r.endDateTime > :start")
                 .setParameter("status", ReservationStatus.CANCELLED)
@@ -40,7 +39,7 @@ public class ReservationRepo extends GenericRepo<Reservation, Long> {
                 .executeUpdate();
     }
 
-    public List<Reservation> findValidReservationsFor(Tutor tutor, LocalDateTime start, LocalDateTime end) {
+    public List<Reservation> findOverlapping(Tutor tutor, LocalDateTime start, LocalDateTime end) {
         return em.createQuery("FROM Reservation r " +
                                 "WHERE r.tutor = :tutor AND r.startDateTime < :end AND r.endDateTime > :start",
                         Reservation.class)
@@ -50,7 +49,7 @@ public class ReservationRepo extends GenericRepo<Reservation, Long> {
                 .getResultList();
     }
 
-    public List<Reservation> findReservationsForStudent(Student student, LocalDateTime start, LocalDateTime end) {
+    public List<Reservation> findOverlapping(Student student, LocalDateTime start, LocalDateTime end) {
         return em.createQuery("FROM Reservation r " +
                                 "WHERE r.student = :student AND r.startDateTime < :end AND r.endDateTime > :start ",
                         Reservation.class)
@@ -58,13 +57,5 @@ public class ReservationRepo extends GenericRepo<Reservation, Long> {
                 .setParameter("start", start)
                 .setParameter("end", end)
                 .getResultList();
-    }
-
-    public Optional<Reservation> findReservationForStudent(Student student, Long id) {
-        return em.createQuery("FROM Reservation r WHERE r.student = :student AND r.reservationId = :id", Reservation.class)
-                .setParameter("student", student)
-                .setParameter("id", id)
-                .getResultStream()
-                .findFirst();
     }
 }

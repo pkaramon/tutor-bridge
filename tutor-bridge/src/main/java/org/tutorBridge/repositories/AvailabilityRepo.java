@@ -27,7 +27,7 @@ public class AvailabilityRepo extends GenericRepo<Availability, Long> {
                 .findFirst();
     }
 
-    public void deleteAvailabilitiesFor(Tutor tutor, LocalDateTime start, LocalDateTime end) {
+    public void deleteAllOverlapping(Tutor tutor, LocalDateTime start, LocalDateTime end) {
         em.createQuery("DELETE FROM Availability a WHERE a.tutor = :tutor AND a.startDateTime < :end AND a.endDateTime > :start")
                 .setParameter("tutor", tutor)
                 .setParameter("start", start)
@@ -36,7 +36,7 @@ public class AvailabilityRepo extends GenericRepo<Availability, Long> {
     }
 
 
-    public List<Availability> fetchAvailabilities(Tutor tutor, LocalDateTime start, LocalDateTime end) {
+    public List<Availability> fetchOverlapping(Tutor tutor, LocalDateTime start, LocalDateTime end) {
         TypedQuery<Availability> query = em.createQuery(
                 "FROM Availability a " +
                         "WHERE a.tutor = :tutor AND a.startDateTime < :end AND a.endDateTime > :start " +

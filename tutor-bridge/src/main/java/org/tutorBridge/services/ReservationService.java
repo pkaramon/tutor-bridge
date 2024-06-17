@@ -2,11 +2,13 @@ package org.tutorBridge.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.tutorBridge.dto.NewReservationDTO;
 import org.tutorBridge.dto.StatusChangeDTO;
-import org.tutorBridge.entities.Reservation;
-import org.tutorBridge.entities.Tutor;
+import org.tutorBridge.entities.*;
 import org.tutorBridge.entities.enums.ReservationStatus;
+import org.tutorBridge.repositories.AvailabilityRepo;
 import org.tutorBridge.repositories.ReservationRepo;
+import org.tutorBridge.repositories.StudentRepo;
 import org.tutorBridge.repositories.TutorRepo;
 import org.tutorBridge.validation.ValidationException;
 
@@ -15,31 +17,63 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 @Service
-public class ReservationService extends AbstractService {
+public class ReservationService {
     private final ReservationRepo reservationRepo;
     private final TutorRepo tutorRepo;
+    private final StudentRepo studentRepo;
+    private final AvailabilityRepo availabilityRepo;
 
-    public ReservationService(ReservationRepo reservationRepo, TutorRepo tutorRepo) {
+    public ReservationService(ReservationRepo reservationRepo, TutorRepo tutorRepo, StudentRepo studentRepo, AvailabilityRepo availabilityRepo) {
         this.reservationRepo = reservationRepo;
         this.tutorRepo = tutorRepo;
+        this.studentRepo = studentRepo;
+        this.availabilityRepo = availabilityRepo;
     }
 
     @Transactional
-    public void makeReservation(Reservation reservation) {
-        Tutor tutor = reservation.getTutor();
+    public void makeReservations(Student student, List<NewReservationDTO> reservationsData) {
+        for (NewReservationDTO reservationData : reservationsData) {
+            makeReservation(student, reservationData);
+        }
+        studentRepo.update(student);
+    }
+
+    private void makeReservation(Student student, NewReservationDTO data) {
+        Availability slot = availabilityRepo.findWithTutorAndSpecializations(data.getAvailabilityId())
+                .orElseThrow(() -> new ValidationException("Availability not found"));
+
+        Tutor tutor = slot.getTutor();
+        Specialization specialization = tutor.getSpecializations().stream()
+                .filter(s -> s.getSpecializationId().equals(data.getSpecializationId()))
+                .findFirst()
+                .orElseThrow(() -> new ValidationException("Specialization not found"));
+
+        Reservation reservation = new Reservation(
+                student,
+                tutor,
+                specialization,
+                slot.getStartDateTime(),
+                slot.getEndDateTime()
+        );
+
         LocalDateTime start = reservation.getStartDateTime();
         LocalDateTime end = reservation.getEndDateTime();
 
-        if (!tutorRepo.isTutorAvailable(tutor, start, end)) {
-            throw new ValidationException("Tutor is not available at the requested time.");
-        }
         if (tutorRepo.hasAbsenceDuring(tutor, start, end)) {
             throw new ValidationException("Tutor has an absence record for the requested time.");
         }
         if (tutorRepo.hasConflictingReservation(tutor, start, end)) {
             throw new ValidationException("Tutor has another reservation at the requested time.");
         }
+
+        student.addReservation(reservation);
+        tutor.addReservation(reservation);
+
+        studentRepo.save(student);
+        tutorRepo.update(tutor);
         reservationRepo.save(reservation);
+
+        availabilityRepo.deleteAllOverlapping(tutor, slot.getStartDateTime(), slot.getEndDateTime());
     }
 
 
@@ -65,5 +99,27 @@ public class ReservationService extends AbstractService {
         }
     }
 
+
+    @Transactional
+    public void cancelReservation(Student student, Long reservationId) {
+        Reservation reservation = reservationRepo.findById(reservationId)
+                .orElseThrow(() -> new ValidationException("Reservation not found"));
+
+        if (student != reservation.getStudent())
+            throw new ValidationException("Reservation does not belong to the student");
+
+        if (reservation.getStartDateTime().isBefore(LocalDateTime.now()))
+            throw new ValidationException("Cannot cancel reservation in the past");
+
+        reservation.setStatus(ReservationStatus.CANCELLED);
+        reservationRepo.update(reservation);
+
+        Availability availability = new Availability(
+                reservation.getTutor(),
+                reservation.getStartDateTime(),
+                reservation.getEndDateTime()
+        );
+        availabilityRepo.insertIfNoConflicts(availability);
+    }
 
 }

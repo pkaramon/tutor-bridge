@@ -11,7 +11,7 @@ import java.util.List;
 
 
 @Service
-public abstract class UserService<T extends User> extends AbstractService {
+public abstract class UserService<T extends User> {
     protected final UserRepo userRepo;
     private final PasswordEncoder passwordEncoder;
 

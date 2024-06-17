@@ -1,11 +1,9 @@
 package org.tutorBridge.services;
 
-import jakarta.persistence.EntityManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tutorBridge.dto.*;
-import org.tutorBridge.entities.Availability;
 import org.tutorBridge.entities.Specialization;
 import org.tutorBridge.entities.Tutor;
 import org.tutorBridge.repositories.AvailabilityRepo;
@@ -14,11 +12,7 @@ import org.tutorBridge.repositories.TutorRepo;
 import org.tutorBridge.repositories.UserRepo;
 import org.tutorBridge.validation.ValidationException;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,7 +23,11 @@ public class TutorService extends UserService<Tutor> {
     private final AvailabilityRepo availabilityRepo;
     private final SpecializationRepo specializationRepo;
 
-    public TutorService(TutorRepo tutorRepo, AvailabilityRepo availabilityRepo, UserRepo userDao, PasswordEncoder pe, SpecializationRepo specializationRepo) {
+    public TutorService(TutorRepo tutorRepo,
+                        AvailabilityRepo availabilityRepo,
+                        UserRepo userDao,
+                        PasswordEncoder pe,
+                        SpecializationRepo specializationRepo) {
         super(userDao, pe);
         this.tutorRepo = tutorRepo;
         this.availabilityRepo = availabilityRepo;
@@ -83,62 +81,6 @@ public class TutorService extends UserService<Tutor> {
                 .collect(Collectors.toSet()));
     }
 
-    @Transactional
-    public List<AvailabilityDTO> addWeeklyAvailability(Tutor tutor, WeeklySlotsDTO slots) {
-        LocalDate startDate = slots.getStartDate();
-        LocalDate endDate = slots.getEndDate();
-        Map<DayOfWeek, List<TimeRangeDTO>> weeklyTimeRanges = slots.getWeeklyTimeRanges();
-
-        availabilityRepo.deleteAvailabilitiesFor(
-                tutor,
-                startDate.atStartOfDay(),
-                endDate.plusDays(1).atStartOfDay());
-
-        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-            DayOfWeek dayOfWeek = date.getDayOfWeek();
-            Set<TimeRangeDTO> timeRanges = Set.copyOf(weeklyTimeRanges.getOrDefault(dayOfWeek, List.of()));
-            for (var timeRange : timeRanges) {
-                createNewAvailabilityFromTimeRange(tutor, timeRange, date);
-            }
-        }
-
-
-        return availabilityRepo.fetchAvailabilities(
-                        tutor,
-                        slots.getStartDate().atStartOfDay(),
-                        slots.getEndDate().plusDays(1).atStartOfDay())
-                .stream()
-                .map(a -> new AvailabilityDTO(a.getAvailabilityId(), a.getStartDateTime(), a.getEndDateTime()))
-                .collect(Collectors.toList());
-    }
-
-
-    private void createNewAvailabilityFromTimeRange(Tutor tutor, TimeRangeDTO timeRange, LocalDate date) {
-        if (timeRange.getStart() != null && timeRange.getEnd() != null) {
-            LocalDateTime startDateTime = LocalDateTime.of(date, timeRange.getStart());
-            LocalDateTime endDateTime = LocalDateTime.of(date, timeRange.getEnd());
-            Availability availability = new Availability(tutor, startDateTime, endDateTime);
-            availabilityRepo.save(availability);
-        }
-    }
-
-    @Transactional
-    public void addOneTmeAvailability(Tutor tutor, LocalDateTime start, LocalDateTime end, EntityManager em) {
-        if (start.isAfter(end)) {
-            throw new ValidationException("Start time must be before getEnd time");
-        }
-
-        checkForAvailabilityConflicts(tutor, start, end);
-        var availability = new Availability(tutor, start, end);
-        availabilityRepo.save(availability);
-    }
-
-    private void checkForAvailabilityConflicts(Tutor tutor, LocalDateTime start, LocalDateTime end) {
-        if (tutorRepo.hasTutorConflictingAvailability(tutor, start, end)) {
-            throw new ValidationException("Tutor already has an availability that conflicts with this one");
-        }
-    }
-
     @Override
     protected void saveUser(Tutor user) {
         tutorRepo.save(user);
@@ -173,7 +115,7 @@ public class TutorService extends UserService<Tutor> {
     }
 
     public List<AvailabilityDTO> getAvailabilities(Tutor tutor, TimeFrameDTO timeFrame) {
-        return availabilityRepo.fetchAvailabilities(tutor, timeFrame.getStart(), timeFrame.getEnd())
+        return availabilityRepo.fetchOverlapping(tutor, timeFrame.getStart(), timeFrame.getEnd())
                 .stream()
                 .map(a -> new AvailabilityDTO(a.getAvailabilityId(), a.getStartDateTime(), a.getEndDateTime()))
                 .collect(Collectors.toList());

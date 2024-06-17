@@ -3,30 +3,21 @@ package org.tutorBridge.services;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.tutorBridge.dto.NewReservationDTO;
+import org.tutorBridge.dto.StudentRegisterDTO;
 import org.tutorBridge.dto.StudentUpdateDTO;
-import org.tutorBridge.entities.*;
-import org.tutorBridge.entities.enums.ReservationStatus;
-import org.tutorBridge.repositories.*;
+import org.tutorBridge.entities.Student;
+import org.tutorBridge.repositories.StudentRepo;
+import org.tutorBridge.repositories.UserRepo;
 import org.tutorBridge.validation.ValidationException;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 
 @Service
 public class StudentService extends UserService<Student> {
     private final StudentRepo studentRepo;
-    private final AvailabilityRepo availabilityRepo;
-    private final TutorRepo tutorRepo;
-    private final ReservationRepo reservationRepo;
 
-    public StudentService(StudentRepo studentRepo, UserRepo userDao, PasswordEncoder passwordEncoder, AvailabilityRepo availabilityRepo, TutorRepo tutorRepo, ReservationRepo reservationRepo) {
+    public StudentService(StudentRepo studentRepo, UserRepo userDao, PasswordEncoder passwordEncoder) {
         super(userDao, passwordEncoder);
         this.studentRepo = studentRepo;
-        this.availabilityRepo = availabilityRepo;
-        this.tutorRepo = tutorRepo;
-        this.reservationRepo = reservationRepo;
     }
 
     private static StudentUpdateDTO fromStudentToDTO(Student student) {
@@ -40,7 +31,16 @@ public class StudentService extends UserService<Student> {
     }
 
     @Transactional
-    public void registerStudent(Student student) {
+    public void registerStudent(StudentRegisterDTO studentData) {
+        Student student = new Student(
+                studentData.getFirstName(),
+                studentData.getLastName(),
+                studentData.getPhone(),
+                studentData.getEmail(),
+                studentData.getPassword(),
+                studentData.getLevel(),
+                studentData.getBirthDate()
+        );
         registerUser(student);
     }
 
@@ -62,68 +62,11 @@ public class StudentService extends UserService<Student> {
         return fromStudentToDTO(student);
     }
 
-    @Transactional
-    public void makeReservations(Student student, List<NewReservationDTO> reservationsData) {
-        for (NewReservationDTO reservationData : reservationsData) {
-            makeReservation(student, reservationData);
-        }
-        studentRepo.update(student);
-    }
-
-    private void makeReservation(Student student, NewReservationDTO data) {
-        Availability slot = availabilityRepo.findWithTutorAndSpecializations(data.getAvailabilityId())
-                .orElseThrow(() -> new ValidationException("Availability not found"));
-        Tutor tutor = slot.getTutor();
-        Specialization specialization = tutor.getSpecializations().stream()
-                .filter(s -> s.getSpecializationId().equals(data.getSpecializationId()))
-                .findFirst()
-                .orElseThrow(() -> new ValidationException("Specialization not found"));
-
-        Reservation reservation = new Reservation(
-                student,
-                tutor,
-                specialization,
-                slot.getStartDateTime(),
-                slot.getEndDateTime()
-        );
-        student.addReservation(reservation);
-        tutor.addReservation(reservation);
-
-        studentRepo.save(student);
-        tutorRepo.update(tutor);
-        reservationRepo.save(reservation);
-
-        availabilityRepo.deleteAvailabilitiesFor(tutor, slot.getStartDateTime(), slot.getEndDateTime());
-    }
-
-
     @Transactional(readOnly = true)
     public StudentUpdateDTO getStudentInfo(Student student) {
         return fromStudentToDTO(student);
     }
 
-    @Transactional
-    public void cancelReservation(Student student, Long reservationId) {
-
-        Reservation reservation = reservationRepo.findReservationForStudent(student, reservationId)
-                .orElseThrow(() -> new ValidationException("Reservation not found"));
-
-        if (student != reservation.getStudent())
-            throw new ValidationException("Reservation does not belong to the student");
-
-        if (reservation.getStartDateTime().isBefore(LocalDateTime.now()))
-            throw new ValidationException("Cannot cancel reservation in the past");
-
-        reservation.setStatus(ReservationStatus.CANCELLED);
-        reservationRepo.update(reservation);
-
-        Availability availability = new Availability(
-                reservation.getTutor(),
-                reservation.getStartDateTime(),
-                reservation.getEndDateTime()
-        );
-        availabilityRepo.insertIfNoConflicts(availability);
-    }
 
     public Student fromEmail(String email) {
         return studentRepo

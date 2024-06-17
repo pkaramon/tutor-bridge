@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import org.tutorBridge.entities.Student;
 import org.tutorBridge.entities.enums.StudentLevel;
-import org.tutorBridge.validation.ValidPhoneNumber;
+import org.tutorBridge.validation.PhoneNumber;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -21,7 +21,7 @@ public class StudentRegisterDTO implements Serializable {
     @NotBlank(message = "Last name is required")
     private String lastName;
     @NotBlank(message = "Phone number is required")
-    @ValidPhoneNumber
+    @PhoneNumber
     private String phone;
     @NotBlank(message = "Email is required")
     @Email(message = "Email must be valid")

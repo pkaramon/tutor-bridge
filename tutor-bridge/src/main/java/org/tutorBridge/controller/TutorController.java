@@ -4,10 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.tutorBridge.dto.*;
-import org.tutorBridge.services.AbsenceService;
-import org.tutorBridge.services.PlanService;
-import org.tutorBridge.services.ReservationService;
-import org.tutorBridge.services.TutorService;
+import org.tutorBridge.services.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,12 +17,18 @@ public class TutorController {
     private final AbsenceService absenceService;
     private final ReservationService reservationService;
     private final PlanService planService;
+    private final AvailabilityService availabilityService;
 
-    public TutorController(TutorService tutorService, AbsenceService absenceService, ReservationService reservationService, PlanService planService) {
+    public TutorController(TutorService tutorService,
+                           AbsenceService absenceService,
+                           ReservationService reservationService,
+                           PlanService planService,
+                           AvailabilityService availabilityService) {
         this.tutorService = tutorService;
         this.absenceService = absenceService;
         this.reservationService = reservationService;
         this.planService = planService;
+        this.availabilityService = availabilityService;
     }
 
     @PostMapping("/register")
@@ -34,15 +37,8 @@ public class TutorController {
         return Collections.singletonMap("message", "Tutor registered successfully");
     }
 
-    @GetMapping("/specialization")
-    public TutorSpecializationDTO getTutorSpecializations(Authentication authentication) {
-        String email = authentication.getName();
-        return tutorService.getSpecializations(tutorService.fromEmail(email));
-    }
-
-
     @PutMapping("/account")
-    public TutorUpdateDTO updateTutor(@Valid @RequestBody TutorUpdateDTO tutorData, Authentication authentication) {
+    public TutorUpdateDTO updateTutorInfo(@Valid @RequestBody TutorUpdateDTO tutorData, Authentication authentication) {
         String email = authentication.getName();
         return tutorService.updateTutorInfo(tutorService.fromEmail(email), tutorData);
     }
@@ -53,12 +49,18 @@ public class TutorController {
         return tutorService.getTutorInfo(tutorService.fromEmail(email));
     }
 
+    @GetMapping("/specialization")
+    public TutorSpecializationDTO getTutorSpecializations(Authentication authentication) {
+        String email = authentication.getName();
+        return tutorService.getSpecializations(tutorService.fromEmail(email));
+    }
+
     @GetMapping("/availability")
     public List<AvailabilityDTO> getAvailabilities(@RequestBody(required = false) TimeFrameDTO timeframe,
                                                    Authentication authentication) {
         timeframe = TimeFrameDTO.fillInEmptyFields(timeframe);
         String email = authentication.getName();
-        return tutorService.getAvailabilities(tutorService.fromEmail(email), timeframe);
+        return availabilityService.getAvailabilities(tutorService.fromEmail(email), timeframe);
     }
 
 
@@ -66,7 +68,7 @@ public class TutorController {
     public List<AvailabilityDTO> setWeeklyAvailability(@Valid @RequestBody WeeklySlotsDTO weeklySlotsDTO,
                                                        Authentication authentication) {
         String email = authentication.getName();
-        return tutorService.addWeeklyAvailability(tutorService.fromEmail(email), weeklySlotsDTO);
+        return availabilityService.addWeeklyAvailability(tutorService.fromEmail(email), weeklySlotsDTO);
     }
 
     @PostMapping("/absence")

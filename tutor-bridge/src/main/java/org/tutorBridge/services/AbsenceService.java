@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class AbsenceService extends AbstractService {
+public class AbsenceService {
     private final AbsenceRepo absenceRepo;
     private final AvailabilityRepo availabilityRepo;
     private final ReservationRepo reservationRepo;
@@ -33,14 +33,14 @@ public class AbsenceService extends AbstractService {
 
     @Transactional
     public List<AbsenceDTO> addAbsence(Tutor tutor, LocalDateTime start, LocalDateTime end) {
-        if (tutorRepo.hasConflictingAbsence(tutor, start, end)) {
+        if (absenceRepo.overlappingAbsenceExists(tutor, start, end)) {
             throw new ValidationException("Tutor already has an absence that conflicts with the new one.");
         }
 
         Absence absence = new Absence(tutor, start, end);
         absenceRepo.save(absence);
-        availabilityRepo.deleteAvailabilitiesFor(tutor, start, end);
-        reservationRepo.cancelReservationsFor(tutor, start, end);
+        availabilityRepo.deleteAllOverlapping(tutor, start, end);
+        reservationRepo.cancelAllOverlapping(tutor, start, end);
 
         return fromAbsencesToDTOS(absenceRepo.fetchAbsences(tutor));
     }

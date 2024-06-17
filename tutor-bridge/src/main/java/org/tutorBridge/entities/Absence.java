@@ -8,7 +8,13 @@ import java.time.LocalDateTime;
 
 @Entity
 @ValidAbsenceRange
-@Table(name = "Absence")
+@Table(name = "Absence",
+        indexes = {
+                @Index(name = "Absence_idx_tutorID", columnList = "TUTORID"),
+                @Index(name = "Absence_idx_startDate", columnList = "STARTDATE"),
+                @Index(name = "Absence_idx_endDate", columnList = "ENDDATE")
+        }
+)
 public class Absence {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

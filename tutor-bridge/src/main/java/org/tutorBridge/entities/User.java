@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import org.tutorBridge.entities.enums.UserType;
-import org.tutorBridge.validation.ValidPhoneNumber;
+import org.tutorBridge.validation.PhoneNumber;
 
 import java.time.LocalDate;
 
@@ -31,7 +31,7 @@ public abstract class User {
     private String lastName;
 
     @NotBlank(message = "Phone number is required")
-    @ValidPhoneNumber
+    @PhoneNumber
     @Column(name = "PHONE", nullable = false, length = 20)
     private String phone;
 

@@ -1,7 +1,7 @@
 package org.tutorBridge.dto;
 
 import jakarta.validation.constraints.Past;
-import org.tutorBridge.validation.ValidPhoneNumber;
+import org.tutorBridge.validation.PhoneNumber;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -10,7 +10,7 @@ import java.util.Set;
 public class TutorUpdateDTO implements Serializable {
     private String firstName;
     private String lastName;
-    @ValidPhoneNumber
+    @PhoneNumber
     private String phone;
     @Past(message = "Birthdate must be in the past")
     private LocalDate birthDate;

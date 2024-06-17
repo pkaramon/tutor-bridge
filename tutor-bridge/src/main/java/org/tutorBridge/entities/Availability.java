@@ -9,7 +9,13 @@ import java.time.LocalDateTime;
 
 @Entity
 @ValidAvailabilityRange
-@Table(name = "AVAILABILITY")
+@Table(name = "AVAILABILITY",
+        indexes = {
+                @Index(name = "Availability_idx_tutorID", columnList = "TUTORID"),
+                @Index(name = "Availability_idx_startDate", columnList = "STARTDATE"),
+                @Index(name = "Availability_idx_endDate", columnList = "ENDDATE")
+        }
+)
 public class Availability {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

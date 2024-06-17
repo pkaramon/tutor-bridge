@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.tutorBridge.dto.*;
 import org.tutorBridge.entities.Student;
 import org.tutorBridge.services.PlanService;
+import org.tutorBridge.services.ReservationService;
 import org.tutorBridge.services.StudentService;
 
 import java.util.Collections;
@@ -16,30 +17,25 @@ import java.util.Map;
 public class StudentController {
     private final StudentService studentService;
     private final PlanService planService;
+    private final ReservationService reservationService;
 
-    public StudentController(StudentService studentService, PlanService planService) {
+    public StudentController(StudentService studentService,
+                             PlanService planService,
+                             ReservationService reservationService) {
         this.studentService = studentService;
         this.planService = planService;
+        this.reservationService = reservationService;
     }
 
     @PostMapping("/register")
     public Map<String, String> registerStudent(@Valid @RequestBody StudentRegisterDTO studentData) {
-        Student student = new Student(
-                studentData.getFirstName(),
-                studentData.getLastName(),
-                studentData.getPhone(),
-                studentData.getEmail(),
-                studentData.getPassword(),
-                studentData.getLevel(),
-                studentData.getBirthDate()
-        );
-        studentService.registerStudent(student);
+        studentService.registerStudent(studentData);
         return Collections.singletonMap("message", "Student registered successfully");
     }
 
     @PutMapping("/account")
-    public StudentUpdateDTO updateStudent(@Valid @RequestBody StudentUpdateDTO studentData,
-                                          Authentication authentication) {
+    public StudentUpdateDTO updateStudentInfo(@Valid @RequestBody StudentUpdateDTO studentData,
+                                              Authentication authentication) {
         String email = authentication.getName();
         return studentService.updateStudentInfo(studentService.fromEmail(email), studentData);
     }
@@ -51,18 +47,19 @@ public class StudentController {
     }
 
     @PostMapping("/reservation")
-    public Map<String, String> makeReservations(@Valid @RequestBody NewReservationsDTO reservations,
-                                                Authentication authentication) {
+    public PlanResponseDTO makeReservations(@Valid @RequestBody NewReservationsDTO reservations,
+                                            Authentication authentication) {
         String email = authentication.getName();
-        studentService.makeReservations(studentService.fromEmail(email), reservations.getReservations());
-        return Collections.singletonMap("message", "Reservations made successfully");
+        var student = studentService.fromEmail(email);
+        reservationService.makeReservations(student, reservations.getReservations());
+        return planService.getPlanForStudent(student, TimeFrameDTO.fillInEmptyFields(null));
     }
 
     @PostMapping("/reservation/{id}/cancel")
     public PlanResponseDTO cancelReservation(@PathVariable(name = "id") Long id, Authentication authentication) {
         String email = authentication.getName();
         Student student = studentService.fromEmail(email);
-        studentService.cancelReservation(student, id);
+        reservationService.cancelReservation(student, id);
         return planService.getPlanForStudent(student, TimeFrameDTO.fillInEmptyFields(null));
     }
 
