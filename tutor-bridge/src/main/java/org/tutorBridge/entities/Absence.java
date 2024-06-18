@@ -2,6 +2,7 @@ package org.tutorBridge.entities;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import org.tutorBridge.validation.ValidAbsenceRange;
 
 import java.time.LocalDateTime;
@@ -25,9 +26,11 @@ public class Absence {
     @JoinColumn(name = "TUTORID", nullable = false)
     private Tutor tutor;
 
+    @NotNull(message = "Start date is required")
     @Column(name = "STARTDATE", nullable = false)
     private LocalDateTime startDate;
 
+    @NotNull(message = "End date is required")
     @Column(name = "ENDDATE", nullable = false)
     private LocalDateTime endDate;
 
