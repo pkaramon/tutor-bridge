@@ -9,7 +9,7 @@ public class NewReservationDTO {
     private Long availabilityId;
 
     @NotNull(message = "Specialization ID is required")
-    private Long specializationId;
+    private String specializationName;
 
     public NewReservationDTO() {
     }
@@ -22,8 +22,8 @@ public class NewReservationDTO {
         return reservationId;
     }
 
-    public Long getSpecializationId() {
-        return specializationId;
+    public String getSpecializationName() {
+        return specializationName;
     }
 
     public void setReservationId(Long reservationId) {

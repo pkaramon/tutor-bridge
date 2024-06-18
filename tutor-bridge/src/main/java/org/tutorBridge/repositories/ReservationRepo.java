@@ -32,13 +32,6 @@ public class ReservationRepo extends GenericRepo<Reservation, Long> {
                 .getResultList();
     }
 
-    public void changeStatus(Long reservationId, ReservationStatus status) {
-        em.createQuery("UPDATE Reservation r SET r.status = :status WHERE r.reservationId = :reservationId")
-                .setParameter("status", status)
-                .setParameter("reservationId", reservationId)
-                .executeUpdate();
-    }
-
     public List<Reservation> findOverlapping(Tutor tutor, LocalDateTime start, LocalDateTime end) {
         return em.createQuery("FROM Reservation r " +
                                 "WHERE r.tutor = :tutor AND r.startDateTime < :end AND r.endDateTime > :start",

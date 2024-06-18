@@ -42,9 +42,10 @@ public class ReservationService {
         Availability slot = availabilityRepo.findWithTutorAndSpecializations(data.getAvailabilityId())
                 .orElseThrow(() -> new ValidationException("Availability not found"));
 
+
         Tutor tutor = slot.getTutor();
         Specialization specialization = tutor.getSpecializations().stream()
-                .filter(s -> s.getSpecializationId().equals(data.getSpecializationId()))
+                .filter(s -> s.getName().equalsIgnoreCase(data.getSpecializationName()))
                 .findFirst()
                 .orElseThrow(() -> new ValidationException("Specialization not found"));
 
@@ -55,16 +56,6 @@ public class ReservationService {
                 slot.getStartDateTime(),
                 slot.getEndDateTime()
         );
-
-        LocalDateTime start = reservation.getStartDateTime();
-        LocalDateTime end = reservation.getEndDateTime();
-
-        if (tutorRepo.hasAbsenceDuring(tutor, start, end)) {
-            throw new ValidationException("Tutor has an absence record for the requested time.");
-        }
-        if (tutorRepo.hasConflictingReservation(tutor, start, end)) {
-            throw new ValidationException("Tutor has another reservation at the requested time.");
-        }
 
         student.addReservation(reservation);
         tutor.addReservation(reservation);
@@ -92,11 +83,14 @@ public class ReservationService {
                     && statusChange.getStatus() != ReservationStatus.CANCELLED) {
                 throw new ValidationException("Cannot change status of a reservation that is already cancelled");
             }
-        });
+            if (reservation.getStatus() == ReservationStatus.ACCEPTED
+                    && statusChange.getStatus() == ReservationStatus.NEW) {
+                throw new ValidationException("Cannot change status of a reservation that is already accepted to new");
+            }
 
-        for (StatusChangeDTO statusChange : statusChanges) {
-            reservationRepo.changeStatus(statusChange.getReservationId(), statusChange.getStatus());
-        }
+            reservation.setStatus(statusChange.getStatus());
+            reservationRepo.update(reservation);
+        });
     }
 
 

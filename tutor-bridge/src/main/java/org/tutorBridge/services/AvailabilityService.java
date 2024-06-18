@@ -5,8 +5,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.tutorBridge.dto.*;
 import org.tutorBridge.entities.Availability;
 import org.tutorBridge.entities.Tutor;
+import org.tutorBridge.repositories.AbsenceRepo;
 import org.tutorBridge.repositories.AvailabilityRepo;
+import org.tutorBridge.repositories.SpecializationRepo;
 import org.tutorBridge.repositories.TutorRepo;
+import org.tutorBridge.validation.ValidationException;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -21,14 +24,31 @@ import java.util.stream.Collectors;
 public class AvailabilityService {
     private final AvailabilityRepo availabilityRepo;
     private final TutorRepo tutorRepo;
+    private final AbsenceRepo absenceRepo;
+    private final SpecializationRepo specializationRepo;
 
-    public AvailabilityService(AvailabilityRepo availabilityRepo, TutorRepo tutorRepo) {
+
+    public AvailabilityService(AvailabilityRepo availabilityRepo,
+                               TutorRepo tutorRepo,
+                               AbsenceRepo absenceRepo,
+                                SpecializationRepo specializationRepo
+    ) {
         this.availabilityRepo = availabilityRepo;
         this.tutorRepo = tutorRepo;
+        this.absenceRepo = absenceRepo;
+        this.specializationRepo = specializationRepo;
     }
 
     @Transactional(readOnly = true)
     public List<TutorSearchResultDTO> searchAvailableTutors(TutorSearchRequestDTO request) {
+        if(specializationRepo.findByName(request.getSpecializationName()).isEmpty()){
+            throw new ValidationException("Specialization does not exist");
+        }
+        if(request.getStartDateTime().isAfter(request.getEndDateTime())){
+            throw new ValidationException("Start date must be before end date");
+        }
+
+
         List<Tutor> tutors = tutorRepo.findTutorsWithAvailabilities(request.getSpecializationName(), request.getStartDateTime(), request.getEndDateTime());
 
         return tutors.stream()
@@ -62,6 +82,7 @@ public class AvailabilityService {
         Map<DayOfWeek, List<TimeRangeDTO>> weeklyTimeRanges = slots.getWeeklyTimeRanges();
 
         clearTimeFrameFromPreviousAvailabilities(tutor, startDate, endDate);
+        clearTimeFrameFromAbsences(tutor, startDate, endDate);
 
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
             DayOfWeek dayOfWeek = date.getDayOfWeek();
@@ -84,6 +105,12 @@ public class AvailabilityService {
                 endDate.plusDays(1).atStartOfDay());
     }
 
+    private void clearTimeFrameFromAbsences(Tutor tutor, LocalDate startDate, LocalDate endDate) {
+        absenceRepo.deleteOverlapping(
+                tutor,
+                startDate.atStartOfDay(),
+                endDate.plusDays(1).atStartOfDay());
+    }
 
     private void createNewAvailabilityFromTimeRange(Tutor tutor, TimeRangeDTO timeRange, LocalDate date) {
         if (timeRange.getStart() != null && timeRange.getEnd() != null) {

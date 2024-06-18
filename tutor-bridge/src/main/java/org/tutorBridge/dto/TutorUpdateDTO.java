@@ -1,6 +1,9 @@
 package org.tutorBridge.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Past;
+import org.tutorBridge.validation.NullOrNotEmpty;
 import org.tutorBridge.validation.PhoneNumber;
 
 import java.io.Serializable;
@@ -8,7 +11,9 @@ import java.time.LocalDate;
 import java.util.Set;
 
 public class TutorUpdateDTO implements Serializable {
+    @NullOrNotEmpty
     private String firstName;
+    @NullOrNotEmpty
     private String lastName;
     @PhoneNumber
     private String phone;

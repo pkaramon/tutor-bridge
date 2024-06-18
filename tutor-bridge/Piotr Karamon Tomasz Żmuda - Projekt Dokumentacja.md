@@ -1,3 +1,5 @@
+# Bazy danych 2 - projekt TutorBridge
+
 # Skład grupy
 - Piotr Karamon(piotrkaramon@student.agh.edu.pl)
 - Tomasz Żmuda(tzmuda@student.agh.edu.pl)
@@ -21,8 +23,6 @@ dane w postaci json, komunikuje się z bazą danych wykonując
 dane zadanie a następnie w postaci json zwraca wynik.
 Frontend chociaż nie jest dostarczony, to zakładamy, że będzie to aplikacja webowa,
 napisana w React.
-
-
 
 Frontend powinien możliwić użytkownikom
 zarejestrowanie się, zalogowanie, przeglądanie dostępnych korepetytorów
@@ -80,12 +80,8 @@ https://github.com/pkaramon/bazy-danych-2-projekt-Piotr-Karamon-Tomasz-Zmuda
     Plan zawiera informacje o zajęciach, uczniach, specjalizacjach, statusie rezerwacji.
     Podane są w wszczególności dane kontaktowe obu stron.
 
-10. Dodanie recenzji(Student)
-
-11. Wyszukiwanie odpowiedniego tutora(Student)
-    Możliwość filtrowania po opiniach(ilość, średnia gwiazdek), specjalizacji,
-    czasie(np. student chce znaleźć tutora który jest dostępny w poniedziałki od
-    17:00 do 20:00).
+10. Wyszukiwanie odpowiedniego tutora(Student).
+    Filtrowanie po dostępności i specjalizacjach. 
 
 # Schemat 
 
@@ -122,10 +118,9 @@ W naszym projekcie zdecydowaliśmy się na minimalizację użycia surowych zapyt
 biznesowej w Javie i Hibernate. Dzięki temu kod jest
 skupiony w jednym miejscu, co ułatwia jego zrozumienie i utrzymanie.
 Dużą zaletą takiego rozwiązania jest również to, że 
-dzięki takiemu podejściu o wiele łatwiejsza jest
+o wiele łatwiejsza jest
 zmiana serwera bazy danych, ponieważ nie trzeba zmieniać
 kodu, a jedynie konfigurację(oczywiście są pewne wyjątki).
-
 
 
 ## User
@@ -191,7 +186,13 @@ public abstract class User {
     private LocalDate birthDate;
 
 
-    public User(String firstName, String lastName, String phone, String email, String password, UserType type, LocalDate birthDate) {
+    public User(String firstName,
+                String lastName,
+                String phone,
+                String email,
+                String password,
+                UserType type,
+                LocalDate birthDate) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.phone = phone;
@@ -535,14 +536,14 @@ Reprezentuje rezerwację sesji z tutorem.
 ```java
 @Entity
 @Table(name = "RESERVATION",
-        indexes = {
-                @Index(name = "Reservation_idx_studentID", columnList = "STUDENTID"),
-                @Index(name = "Reservation_idx_tutorID", columnList = "TUTORID"),
-                @Index(name = "Reservation_idx_specializationID", columnList = "SPECIALIZATIONID"),
-                @Index(name = "Reservation_idx_startDate", columnList = "STARTDATE"),
-                @Index(name = "Reservation_idx_endDate", columnList = "ENDDATE"),
-                @Index(name = "Reservation_idx_status", columnList = "STATUS")
-        }
+indexes = {
+    @Index(name = "Reservation_idx_studentID", columnList = "STUDENTID"),
+    @Index(name = "Reservation_idx_tutorID", columnList = "TUTORID"),
+    @Index(name = "Reservation_idx_specializationID", columnList = "SPECIALIZATIONID"),
+    @Index(name = "Reservation_idx_startDate", columnList = "STARTDATE"),
+    @Index(name = "Reservation_idx_endDate", columnList = "ENDDATE"),
+    @Index(name = "Reservation_idx_status", columnList = "STATUS")
+}
 )
 public class Reservation {
 
@@ -599,9 +600,212 @@ public enum ReservationStatus {
 }
 ```
 
+# W zastosowaniu
+
+## Rejestracja tutora
+
+### W przypadku złych danych:
+![](./images/regtutor_fail.png)
+
+### W przypadku użycia tego samego emaila:
+
+![](./images/regtutor_fail_email.png)
+
+### W przypadku poprawnych danych:
+
+![](./images/regtutor_success.png)
+
+## Rejestracja studenta
+
+### W przypadku złych danych
+Praktycznie to samo co w rejestracji tutora
+
+### W przypadku dobrych danych
+![](images/regstudent_success.png)
+
+## Logowanie
+
+### Brak podania emaila albo hasła
+
+![](images/login_fail.png)
+
+### W przypadku złych danych
+
+![](images/login_failed_wrong_credentials.png)
+
+### W przypadku poprawnych danych
+
+![](images/login_success.png)
+
+Wszystkie kolejne requesty
+zawierają w sobie token JWT.
+
+## Zmiana danych tutora w tym wybór specjalizacji
+
+Podane specjalizacje nadpisują obecne.
+
+### W przypadku złych danych
+
+![](images/tutorupdate_fail.png)
+
+### W przyadku poprawnych danych
+
+![](images/tutorupdate_success.png)
+
+
+## Zmiana danych studenta
+
+### W przypadku złych danych
+
+![](images/updatestudent_fail.png)
+
+### W przypadku poprawnych danych
+
+![](images/studentupdate_success.png)
+
+## Wybranie godzin dostępności przez tutora
+
+Podane zakresy są slotami.
+Wypełnianie ich manualnie jest dosyć żmudne.
+Przewidujemy, że request będzie tworzył
+kod na frontendcie który w zależności od
+wyboru tutora ustawi sloty co odpowiednią ilość czasu.
+
+Sytem w przedziale czasowym danym przez <startDate, endDate>
+stworzy odpowiednie wpisy do tabeli Availability.
+
+Obecności ustawione w tym okresie są usuwane i
+zastępowane nowymi. Również jeżeli była
+wpisana nieobecność w tym okresie to ja usuwamy.
+
+### W przypadku złych danych
+
+![](images/weekly_avail_fail.png)
+
+### W przypadku poprawnych danych
+![](images/weekly_avail_success.png)
+
+## Pobranie godzin dostępności
+
+![](images/avail_get.png)
+
+Opcjonalnie można podać przedział czasowy,
+w postaci `{"start": ..., "end": ...}`.
+
+
+
+
+## Wyszukanie tutorów przez studenta
+
+Student wysyła w jakim przedziale
+szuka zajęć oraz specjalizację która go
+interesuję.
+
+### W przypadku złych danych
+
+![](images/tutorsearch_fail.png)
+
+
+### W przypadku poprawnych danych
+![](images/tutorsearch_ok.png)
+
+## Rezerwacja zajęć
+
+Sprawdzamy czy slot rzeczywiście jest w bazie.
+Inne sloty które się z nim nakładają są usuwane.
+Dodawana jest rezerwacja.
+
+Możliwa jest rezerwacja wielu slotów na raz,
+wszystko wykonywane jest w jednej transakcji.
+
+### W przypadku złych danych
+
+![](images/make_reser_fail.png)
+![](images/make_reserv_fail2.png)
+
+Próba zarezerowania dwóch
+slotów które nachodzą na siebie.
+
+![](images/make_reser_fail3.png)
+
+## W przypadku poprawnych danych
+
+![](images/make_reserv.png)
+
+## Pobranie planu zajęć
+
+Zarówno studenci jak i tutorzy mogą pobrać plan zajęć,
+w którym znajdują się wszystkie potrzebne informacje
+o rezerwacjach, uczniu i tutorze.
+
+### W przypadku studenta
+![](images/plan_student.png)
+
+Jest opcja podania
+przedziału czasowego dla którego
+chcemy plan.
+
+![](images/plan_with_range_student.png)
+
+### Dla tutora
+
+![](images/plan_tutor.png)
+
+Tak samo można podać przedział czasowy.
+
+## Anulowanie rezerwacji przez studenta
+
+Złe dane:
+
+![](images/cancel_reser_err.png)
+
+Poprawne dane:
+
+![](images/reser_cancel_student.png)
+
+
+## Tutor może zmieniać status rezerwacji
+
+Może albo je zaakceptować albo anulować.
+
+![](images/tutor_change_reservation_status.png)
+
+## Dodanie czasu nieobecności tutora
+
+Tutor może wpisać nieobecność w danym przedziale czasowym.
+Dostępne sloty są usuwane.
+Rezerwacje w tym przedziale czasowym są anulowane.
+
+![](images/add_absence.png)
+
+Przykład przy błędnych danych.
+
+![](images/absence_wrong_input.png)
+
+## Listę nieobecności tutor może pobrać
+
+Podobnie jak przy pobieraniu
+planu można podać `{"start": ..., "end": ...}`
+w celu wyboru przedziału.
+
+![](images/get_absence.png)
+
+## Tutor może usunąć nieobecność
+
+![](images/delete_absence.png)
+
+Jeżeli chcę w tym okresie
+dalej prowadzić zajęcia to
+musi na nowo ustawić sobie plan.
+Zwracana jest nowa lista nieobecności
+dlatego wynik jest pustą
+tablicą.
+
+
 # Architektura aplikacji
 
 Aplikacja składa się z kilku warstw:
+
 - **Encje** - reprezentują obiekty w bazie danych.
 - **Repozytoria** - warstwa dostępu do bazy danych.
 - **Serwisy** - warstwa logiki biznesowej.
@@ -627,7 +831,7 @@ Kontrolery z racji tego, jak dużo
 pracy zautomatyzwane jest przez Spring Boot,
 zawierają bardzo mało kodu.
 Jest to praktycznie wylistowanie pod jakim 
-adreset użytkownik może przesłać co, 
+adresem użytkownik może przesłać co, 
 następnie wykonanie funkcji z serwisu i zwrócenie
 wyniku.
 
@@ -726,6 +930,36 @@ public class PhoneNumberValidator implements ConstraintValidator<PhoneNumber, St
     }
 }
 ```
+## NullOrNotEmpty
+
+Sprawdza czy podany String jest albo nullem albo nie jest pusty.
+
+```java
+@Constraint(validatedBy = NullOrNotEmptyValidator.class)
+@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface NullOrNotEmpty {
+    String message() default "Field must be null or not empty";
+    Class<?>[] groups() default {};
+    Class<? extends Payload>[] payload() default {};
+}
+```
+
+```java
+public class NullOrNotEmptyValidator implements ConstraintValidator<NullOrNotEmpty, String> {
+
+    @Override
+    public void initialize(NullOrNotEmpty constraintAnnotation) {
+    }
+
+    @Override
+    public boolean isValid(String value, ConstraintValidatorContext context) {
+        return value == null || !value.trim().isEmpty();
+    }
+}
+
+```
+
 
 
 ## ValidAbsenceRange
@@ -808,9 +1042,11 @@ public @interface ValidAvailabilityRange {
 package org.tutorBridge.validation;
 
 
-public class AvailabilityRangeValidator implements ConstraintValidator<ValidAvailabilityRange, Availability> {
+public class AvailabilityRangeValidator implements ConstraintValidator<ValidAvailabilityRange,
+        Availability> {
     @Override
-    public boolean isValid(Availability availability, ConstraintValidatorContext constraintValidatorContext) {
+    public boolean isValid(Availability availability,
+                           ConstraintValidatorContext constraintValidatorContext) {
         if (availability == null) {
             return false;
         }
@@ -827,9 +1063,11 @@ godzina:minuta - godzina:minuta jest poprawny.
 ```java
 package org.tutorBridge.validation;
 
-public class TimeRangeDTOValidator implements ConstraintValidator<ValidTimeRangeDTO, TimeRangeDTO> {
+public class TimeRangeDTOValidator implements ConstraintValidator<ValidTimeRangeDTO,
+        TimeRangeDTO> {
     @Override
-    public boolean isValid(TimeRangeDTO timeRangeDTO, ConstraintValidatorContext constraintValidatorContext) {
+    public boolean isValid(TimeRangeDTO timeRangeDTO,
+                           ConstraintValidatorContext constraintValidatorContext) {
         if (timeRangeDTO == null) {
             return true;
         }
@@ -861,7 +1099,7 @@ public @interface ValidTimeRangeDTO {
 
 ```
 
-## ValidationException.java
+## ValidationException
 
 Klasa wyjątku, który jest rzucony w przypadku
 niepoprawnych danych.
@@ -896,7 +1134,7 @@ W tokenie JWT przechowywane są informacje o użytkowniku: adres e-mail, rola i 
 
 Na podstawie roli użytkownika, aplikacja decyduje, czy użytkownik ma dostęp do określonych zasobów.
 
-## CustomUserDetailsService.java
+## CustomUserDetailsService
 - Ta klasa implementuje `UserDetailsService` i jest odpowiedzialna za ładowanie szczegółów użytkownika na podstawie jego adresu e-mail.
 - Używa `UserRepo` do wyszukiwania użytkownika w bazie danych.
 - `loadUserByUsername(String email)`: Zwraca obiekt `UserDetails` zawierający informacje o użytkowniku, takie jak nazwa użytkownika, hasło i role.
@@ -933,7 +1171,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 ```
 
 
-## JwtAuthenticationEntryPoint.java
+## JwtAuthenticationEntryPoint
 - Implementuje `AuthenticationEntryPoint` i jest używana do obsługi nieautoryzowanych żądań.
 - Gdy użytkownik nie jest uwierzytelniony, wysyła odpowiedź HTTP 401 (Unauthorized).
 
@@ -952,8 +1190,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
 ```
 
-## JwtAuthenticationFilter.java
-**Opis:**
+## JwtAuthenticationFilter
 - Rozszerza `OncePerRequestFilter` i jest odpowiedzialny za filtrowanie każdego żądania HTTP w celu sprawdzenia, czy zawiera ono ważny token JWT.
 - Używa `JwtTokenUtil` do ekstrakcji informacji z tokena i `UserDetailsService` do ładowania szczegółów użytkownika.
 - `doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)`: Sprawdza nagłówek `Authorization` w celu ekstrakcji tokena JWT, waliduje go i ustawia kontekst bezpieczeństwa.
@@ -1006,8 +1243,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 ```
 
 
-## JwtTokenUtil.java
-**Opis:**
+## JwtTokenUtil
 - Ta klasa jest odpowiedzialna za zarządzanie tokenami JWT: generowanie, walidowanie i ekstrakcję informacji.
 - `extractUserEmail(String token)`: Ekstrakcja adresu e-mail użytkownika z tokena.
 - `generateToken(String email)`: Generuje token JWT na podstawie adresu e-mail.
@@ -1071,7 +1307,7 @@ public class JwtTokenUtil {
 
 ```
 
-## SecurityConfig.java
+## SecurityConfig
 - Główna klasa konfiguracji bezpieczeństwa aplikacji, która definiuje reguły zabezpieczeń.
 - `securityFilterChain(HttpSecurity http)`: Konfiguruje HTTP Security, definiuje które endpointy są publiczne, a które wymagają uwierzytelnienia. Ustawia także `JwtAuthenticationFilter` jako filtr przetwarzający żądania.
 - `passwordEncoder()`: Definiuje użycie `BCryptPasswordEncoder` do kodowania haseł.
@@ -1099,7 +1335,9 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/login", "/api/tutors/register", "/api/students/register").permitAll()
+                        .requestMatchers("/api/auth/login",
+                                "/api/tutors/register",
+                                "/api/students/register").permitAll()
                         .requestMatchers("/api/students/**").hasAuthority("STUDENT")
                         .requestMatchers("/api/tutors/**").hasAuthority("TUTOR")
                         .anyRequest().authenticated()
@@ -1119,7 +1357,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager (AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -1131,17 +1370,15 @@ public class SecurityConfig {
 
 ```
 
-
-
-## JwtAuthenticationEntryPoint.java
-
-## JwtAuthenticationFilter.java
-
-## JwtTokenUtil.java
-
-## SecurityConfig.java
-
 # Serwisy
+
+Zawierają logikę biznesową aplikacji.
+Wiele metod serwisów 
+posiada adnotację `@Transactional`.
+Co sprawia, że metoda jest wykonywana
+w ramach jednej transakcji.
+W przypadku samych odczytów
+stosujemy `@Transactional(readOnly = true)`.
 
 ## UserService
 
@@ -1198,7 +1435,7 @@ public abstract class UserService<T extends User> {
 - `updateTutorInfo(Tutor tutor, TutorUpdateDTO tutorData)`:
     - Aktualizuje informacje o tutorze na podstawie danych z `TutorUpdateDTO`.
     - Aktualizuje specjalizacje tutora.
-    - Zapisuje zaktualizowane dane w repozytorium.
+    - Zapisuje zaktualizowane dane w bazie danych.
 
 - `getTutorInfo(Tutor tutor)`:
     - Zwraca obiekt `TutorUpdateDTO` zawierający informacje o tutorze.
@@ -1207,7 +1444,7 @@ public abstract class UserService<T extends User> {
     - Zwraca specjalizacje przypisane do danego tutora.
 
 - `saveUser(Tutor user)`:
-    - Zapisuje tutora w repozytorium.
+    - Zapisuje tutora w bazie danych.
     - Metoda ta jest wywoływana przez metodę `registerUser` z klasy `UserService`.
 
 
@@ -1265,7 +1502,8 @@ public class TutorService extends UserService<Tutor> {
         );
 
         for (Specialization specialization : tutor.getSpecializations()) {
-            Optional<Specialization> existingSpecialization = specializationRepo.findByName(specialization.getName());
+            Optional<Specialization> existingSpecialization =
+                    specializationRepo.findByName(specialization.getName());
             if (existingSpecialization.isPresent()) {
                 specialization.setSpecializationId(existingSpecialization.get().getSpecializationId());
             } else {
@@ -1294,7 +1532,8 @@ public class TutorService extends UserService<Tutor> {
         if (tutorData.getBirthDate() != null) tutor.setBirthDate(tutorData.getBirthDate());
         if (tutorData.getBio() != null) tutor.setBio(tutorData.getBio());
         if (tutorData.getSpecializations() != null) {
-            Set<Specialization> specializations = getOrCreateSpecializations(tutorData.getSpecializations());
+            Set<Specialization> specializations =
+                    getOrCreateSpecializations(tutorData.getSpecializations());
             tutor.setSpecializations(specializations);
         }
 
@@ -1448,7 +1687,10 @@ public class AbsenceService {
     private final AvailabilityRepo availabilityRepo;
     private final ReservationRepo reservationRepo;
 
-    public AbsenceService(AbsenceRepo absenceRepo, AvailabilityRepo availabilityRepo, ReservationRepo reservationRepo, TutorRepo tutorRepo) {
+    public AbsenceService(AbsenceRepo absenceRepo,
+                          AvailabilityRepo availabilityRepo,
+                          ReservationRepo reservationRepo,
+                          TutorRepo tutorRepo) {
         this.absenceRepo = absenceRepo;
         this.availabilityRepo = availabilityRepo;
         this.reservationRepo = reservationRepo;
@@ -1471,7 +1713,9 @@ public class AbsenceService {
     @Transactional(readOnly = true)
     public List<AbsenceDTO> getAbsences(Tutor tutor, TimeFrameDTO timeFrame) {
         TimeFrameDTO.fillInEmptyFields(timeFrame);
-        return fromAbsencesToDTOS(absenceRepo.fetchAbsences(tutor, timeFrame.getStart(), timeFrame.getEnd()));
+        return fromAbsencesToDTOS(absenceRepo.fetchAbsences(
+                tutor, timeFrame.getStart(), timeFrame.getEnd())
+        );
     }
 
     @Transactional
@@ -1532,7 +1776,18 @@ public class AvailabilityService {
 
     @Transactional(readOnly = true)
     public List<TutorSearchResultDTO> searchAvailableTutors(TutorSearchRequestDTO request) {
-        List<Tutor> tutors = tutorRepo.findTutorsWithAvailabilities(request.getSpecializationName(), request.getStartDateTime(), request.getEndDateTime());
+        if(specializationRepo.findByName(request.getSpecializationName()).isEmpty()){
+            throw new ValidationException("Specialization does not exist");
+        }
+        if(request.getStartDateTime().isAfter(request.getEndDateTime())){
+            throw new ValidationException("Start date must be before end date");
+        }
+        
+        List<Tutor> tutors = tutorRepo.findTutorsWithAvailabilities(
+                request.getSpecializationName(),
+                request.getStartDateTime(),
+                request.getEndDateTime()
+        );
 
         return tutors.stream()
                 .map(tutor -> {
@@ -1698,8 +1953,6 @@ public class PlanService {
 ```java
 package org.tutorBridge.services;
 
-
-
 @Service
 public class ReservationService {
     private final ReservationRepo reservationRepo;
@@ -1707,7 +1960,10 @@ public class ReservationService {
     private final StudentRepo studentRepo;
     private final AvailabilityRepo availabilityRepo;
 
-    public ReservationService(ReservationRepo reservationRepo, TutorRepo tutorRepo, StudentRepo studentRepo, AvailabilityRepo availabilityRepo) {
+    public ReservationService(ReservationRepo reservationRepo,
+                              TutorRepo tutorRepo,
+                              StudentRepo studentRepo,
+                              AvailabilityRepo availabilityRepo) {
         this.reservationRepo = reservationRepo;
         this.tutorRepo = tutorRepo;
         this.studentRepo = studentRepo;
@@ -1728,7 +1984,7 @@ public class ReservationService {
 
         Tutor tutor = slot.getTutor();
         Specialization specialization = tutor.getSpecializations().stream()
-                .filter(s -> s.getSpecializationId().equals(data.getSpecializationId()))
+                .filter(s -> s.getName().toLowerCase().equals(data.getSpecializationName()))
                 .findFirst()
                 .orElseThrow(() -> new ValidationException("Specialization not found"));
 
@@ -1739,16 +1995,6 @@ public class ReservationService {
                 slot.getStartDateTime(),
                 slot.getEndDateTime()
         );
-
-        LocalDateTime start = reservation.getStartDateTime();
-        LocalDateTime end = reservation.getEndDateTime();
-
-        if (tutorRepo.hasAbsenceDuring(tutor, start, end)) {
-            throw new ValidationException("Tutor has an absence record for the requested time.");
-        }
-        if (tutorRepo.hasConflictingReservation(tutor, start, end)) {
-            throw new ValidationException("Tutor has another reservation at the requested time.");
-        }
 
         student.addReservation(reservation);
         tutor.addReservation(reservation);
@@ -1774,13 +2020,20 @@ public class ReservationService {
             StatusChangeDTO statusChange = statusChanges.get(i);
             if (reservation.getStatus() == ReservationStatus.CANCELLED
                     && statusChange.getStatus() != ReservationStatus.CANCELLED) {
-                throw new ValidationException("Cannot change status of a reservation that is already cancelled");
+                throw new ValidationException(
+                        "Cannot change status of a reservation that is already cancelled"
+                );
             }
-        });
+            if (reservation.getStatus() == ReservationStatus.ACCEPTED
+                    && statusChange.getStatus() == ReservationStatus.NEW) {
+                throw new ValidationException(
+                        "Cannot change status of a reservation that is already accepted to new"
+                );
+            }
 
-        for (StatusChangeDTO statusChange : statusChanges) {
-            reservationRepo.changeStatus(statusChange.getReservationId(), statusChange.getStatus());
-        }
+            reservation.setStatus(statusChange.getStatus());
+            reservationRepo.update(reservation);
+        });
     }
 
 
@@ -1807,13 +2060,12 @@ public class ReservationService {
     }
 
 }
-
 ```
 
 # Repozytoria
 
 ## GenericRepo
-`GenericRepo` to ogólny repozytorium, zapewniające podstawowe operacje CRUD dla encji.
+`GenericRepo` to ogólne repozytorium, zapewniające podstawowe operacje CRUD dla encji.
 
 - `save(T entity)`:
     - Zapisuje encję do bazy danych.
@@ -1885,7 +2137,7 @@ public class GenericRepo<T, ID extends Serializable> {
 ```
 
 
-## UserRepo.java
+## UserRepo
 `UserRepo` zarządza operacjami związanymi z użytkownikami.
 
 - `findByEmail(String email)`:
@@ -1924,7 +2176,10 @@ public class UserRepo extends GenericRepo<User, Long> {
     - Pobiera listę wszystkich nieobecności tutora.
 
 - `overlappingAbsenceExists(Tutor tutor, LocalDateTime start, LocalDateTime end)`:
-    - Sprawdza, czy istnieje nakładająca się nieobecność dla danego tutora w podanym przedziale czasowym.
+    - Sprawdza, czy istnieje nieboecność która nakłada się z podanym przedziałem czasowy.
+    
+- `deleteOverlapping(Tutor tutor, LocalDateTime start, LocalDateTime end)`
+  - Usuwa wszystkie nakładające się nieobecności z podanym przedziałem czasowym dla danego tutora.
 
 
 ```java
@@ -1940,7 +2195,8 @@ public class AbsenceRepo extends GenericRepo<Absence, Long> {
 
 
     public List<Absence> fetchAbsences(Tutor tutor, LocalDateTime start, LocalDateTime end) {
-        return em.createQuery("FROM Absence a WHERE a.tutor = :tutor AND a.startDate >= :start AND a.endDate <= :end",
+        return em.createQuery("FROM Absence a " + 
+                              "WHERE a.tutor = :tutor AND a.startDate >= :start AND a.endDate <= :end",
                         Absence.class)
                 .setParameter("tutor", tutor)
                 .setParameter("start", start)
@@ -1965,6 +2221,15 @@ public class AbsenceRepo extends GenericRepo<Absence, Long> {
         List<Absence> results = query.getResultList();
         return !results.isEmpty();
     }
+
+    public void deleteOverlapping(Tutor tutor, LocalDateTime start, LocalDateTime end) {
+        em.createQuery("DELETE FROM Absence a " +
+                       "WHERE a.tutor = :tutor AND a.startDate < :end AND a.endDate > :start")
+                .setParameter("tutor", tutor)
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .executeUpdate();
+    }
 }
 ```
 
@@ -1976,10 +2241,10 @@ public class AbsenceRepo extends GenericRepo<Absence, Long> {
     - Znajduje dostępność wraz z przypisanym tutorem i jego specjalizacjami.
 
 - `deleteAllOverlapping(Tutor tutor, LocalDateTime start, LocalDateTime end)`:
-    - Usuwa wszystkie nakładające się dostępności dla tutora w określonym przedziale czasowym.
+    - Usuwa wszystkie nakładające się dostępności z podanym przedziałem czasowym dla danego tutora.
 
 - `fetchOverlapping(Tutor tutor, LocalDateTime start, LocalDateTime end)`:
-    - Pobiera listę nakładających się dostępności dla danego tutora.
+    - Pobiera listę nakładających się dostępności z podanym przedziałem czasowym dla danego tutora.
 
 - `insertIfNoConflicts(Availability availability)`:
     - Wstawia nową dostępność, jeśli nie występują konflikty z istniejącymi nieobecnościami lub rezerwacjami.
@@ -2011,7 +2276,8 @@ public class AvailabilityRepo extends GenericRepo<Availability, Long> {
     }
 
     public void deleteAllOverlapping(Tutor tutor, LocalDateTime start, LocalDateTime end) {
-        em.createQuery("DELETE FROM Availability a WHERE a.tutor = :tutor AND a.startDateTime < :end AND a.endDateTime > :start")
+        em.createQuery("DELETE FROM Availability a" +
+                        " WHERE a.tutor = :tutor AND a.startDateTime < :end AND a.endDateTime > :start")
                 .setParameter("tutor", tutor)
                 .setParameter("start", start)
                 .setParameter("end", end)
@@ -2046,7 +2312,8 @@ public class AvailabilityRepo extends GenericRepo<Availability, Long> {
 
         boolean overlappingReservationExists = em.createQuery(
                         "SELECT COUNT(r) > 0 FROM Reservation r " +
-                                "WHERE r.tutor = :tutor AND r.startDateTime < :end AND r.endDateTime > :start " +
+                                "WHERE r.tutor = :tutor " + 
+                                "AND r.startDateTime < :end AND r.endDateTime > :start " +
                                 "AND r.status != :status",
                         Boolean.class)
                 .setParameter("tutor", availability.getTutor())
@@ -2059,8 +2326,12 @@ public class AvailabilityRepo extends GenericRepo<Availability, Long> {
         em.persist(availability);
     }
 
-    public List<Availability> findAvailabilitiesByTutorAndTimeFrame(Tutor tutor, LocalDateTime startDateTime, LocalDateTime endDateTime) {
-        return em.createQuery("FROM Availability a WHERE a.tutor = :tutor AND a.startDateTime >= :startDateTime AND a.endDateTime <= :endDateTime", Availability.class)
+    public List<Availability> findAvailabilitiesByTutorAndTimeFrame(Tutor tutor,
+                                                                    LocalDateTime startDateTime,
+                                                                    LocalDateTime endDateTime) {
+        return em.createQuery("FROM Availability a WHERE a.tutor = :tutor " + 
+                              "AND a.startDateTime >= :startDateTime AND a.endDateTime <= :endDateTime", 
+                              Availability.class)
                 .setParameter("tutor", tutor)
                 .setParameter("startDateTime", startDateTime)
                 .setParameter("endDateTime", endDateTime)
@@ -2076,19 +2347,16 @@ public class AvailabilityRepo extends GenericRepo<Availability, Long> {
 `ReservationRepo` zarządza rezerwacjami.
 
 - `cancelAllOverlapping(Tutor tutor, LocalDateTime start, LocalDateTime end)`:
-    - Anuluje wszystkie nakładające się rezerwacje dla tutora w określonym przedziale czasowym.
+    - Anuluje wszystkie rezerwacje nakładające się z podanym przedziałem czasowym dla danego tutora.
 
 - `findReservationsByTutorAndIds(Tutor tutor, List<Long> reservationIds)`:
     - Znajduje rezerwacje na podstawie ID dla danego tutora.
 
-- `changeStatus(Long reservationId, ReservationStatus status)`:
-    - Zmienia status rezerwacji na podstawie jej ID.
-
 - `findOverlapping(Tutor tutor, LocalDateTime start, LocalDateTime end)`:
-    - Pobiera listę nakładających się rezerwacji dla tutora.
+    - Pobiera listę rezerwacji które nakładają się z podanym przedziałem czasowym dla danego tutora.
 
 - `findOverlapping(Student student, LocalDateTime start, LocalDateTime end)`:
-    - Pobiera listę nakładających się rezerwacji dla studenta.
+    - Pobiera listę rezerwacji które nakładają się z podanym przedziałem czasowym dla danego studenta.
 
 
 ```java
@@ -2113,22 +2381,19 @@ public class ReservationRepo extends GenericRepo<Reservation, Long> {
     }
 
     public List<Reservation> findReservationsByTutorAndIds(Tutor tutor, List<Long> reservationIds) {
-        return em.createQuery("FROM Reservation r WHERE r.tutor = :tutor AND r.reservationId IN :reservationIds", Reservation.class)
+        return em.createQuery("FROM Reservation r " +
+                               "WHERE r.tutor = :tutor AND r.reservationId IN :reservationIds",
+                               Reservation.class)
                 .setParameter("tutor", tutor)
                 .setParameter("reservationIds", reservationIds)
                 .getResultList();
     }
 
-    public void changeStatus(Long reservationId, ReservationStatus status) {
-        em.createQuery("UPDATE Reservation r SET r.status = :status WHERE r.reservationId = :reservationId")
-                .setParameter("status", status)
-                .setParameter("reservationId", reservationId)
-                .executeUpdate();
-    }
 
     public List<Reservation> findOverlapping(Tutor tutor, LocalDateTime start, LocalDateTime end) {
         return em.createQuery("FROM Reservation r " +
-                                "WHERE r.tutor = :tutor AND r.startDateTime < :end AND r.endDateTime > :start",
+                               "WHERE r.tutor = :tutor " + 
+                               "AND r.startDateTime < :end AND r.endDateTime > :start",
                         Reservation.class)
                 .setParameter("tutor", tutor)
                 .setParameter("start", start)
@@ -2138,7 +2403,8 @@ public class ReservationRepo extends GenericRepo<Reservation, Long> {
 
     public List<Reservation> findOverlapping(Student student, LocalDateTime start, LocalDateTime end) {
         return em.createQuery("FROM Reservation r " +
-                                "WHERE r.student = :student AND r.startDateTime < :end AND r.endDateTime > :start ",
+                               "WHERE r.student = :student " + 
+                               "AND r.startDateTime < :end AND r.endDateTime > :start ",
                         Reservation.class)
                 .setParameter("student", student)
                 .setParameter("start", start)
@@ -2169,7 +2435,8 @@ public class SpecializationRepo extends GenericRepo<Specialization, Long> {
     }
 
     public Optional<Specialization> findByName(String name) {
-        return em.createQuery("SELECT s FROM Specialization s WHERE lower(s.name) = lower(:name)", Specialization.class)
+        return em.createQuery("SELECT s FROM Specialization s WHERE lower(s.name) = lower(:name)",
+                        Specialization.class)
                 .setParameter("name", name.toLowerCase())
                 .getResultList()
                 .stream()
@@ -2180,11 +2447,12 @@ public class SpecializationRepo extends GenericRepo<Specialization, Long> {
 
 ```
 
-## StudentRepo.java
+## StudentRepo
 `StudentRepo` zarządza operacjami związanymi ze studentami.
+
 - `findByEmail(String email)`:
     - Znajduje studenta na podstawie adresu email.
-    -
+    
 ```java
 package org.tutorBridge.repositories;
 
@@ -2200,7 +2468,6 @@ public class StudentRepo extends GenericRepo<Student, Long> {
         return query.getResultList().stream().findFirst();
     }
 }
-
 ```
 
 ## TutorRepo
@@ -2208,12 +2475,6 @@ public class StudentRepo extends GenericRepo<Student, Long> {
 
 - `findByEmail(String email)`:
     - Znajduje tutora na podstawie adresu email.
-
-- `hasAbsenceDuring(Tutor tutor, LocalDateTime start, LocalDateTime end)`:
-    - Sprawdza, czy tutor ma zaplanowaną nieobecność w podanym przedziale czasowym.
-
-- `hasConflictingReservation(Tutor tutor, LocalDateTime start, LocalDateTime end)`:
-    - Sprawdza, czy tutor ma konfliktujące rezerwacje w podanym przedziale czasowym.
 
 - `findTutorsWithAvailabilities(String specializationName, LocalDateTime startDateTime, LocalDateTime endDateTime)`:
     - Znajduje tutorów z dostępnymi terminami w określonym przedziale czasowym i specjalizacji.
@@ -2238,39 +2499,16 @@ public class TutorRepo extends GenericRepo<Tutor, Long> {
         return query.getResultList().stream().findFirst();
     }
 
-
-    public boolean hasAbsenceDuring(Tutor tutor, LocalDateTime start, LocalDateTime end) {
-        TypedQuery<Absence> query = em.createQuery(
-                "FROM Absence a WHERE a.tutor = :tutor AND a.startDate <= :end AND a.endDate >= :start",
-                Absence.class
-        );
-        query.setParameter("tutor", tutor);
-        query.setParameter("start", start);
-        query.setParameter("end", end);
-        List<Absence> results = query.getResultList();
-        return !results.isEmpty();
-    }
-
-    public boolean hasConflictingReservation(Tutor tutor, LocalDateTime start, LocalDateTime end) {
-        TypedQuery<Reservation> query = em.createQuery(
-                "FROM Reservation r WHERE r.tutor = :tutor AND r.startDateTime < :end AND r.endDateTime > :start",
-                Reservation.class
-        );
-        query.setParameter("tutor", tutor);
-        query.setParameter("start", start);
-        query.setParameter("end", end);
-        List<Reservation> results = query.getResultList();
-        return !results.isEmpty();
-    }
-
-
-    public List<Tutor> findTutorsWithAvailabilities(String specializationName, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+    public List<Tutor> findTutorsWithAvailabilities(String specializationName,
+                                                    LocalDateTime startDateTime,
+                                                    LocalDateTime endDateTime) {
         return em.createQuery(
                         "SELECT DISTINCT t FROM Tutor t " +
                                 "JOIN t.specializations s " +
-                                "LEFT JOIN FETCH t.availabilities a " +
+                                "JOIN FETCH t.availabilities a " +
                                 "WHERE lower(s.name) = lower(:specializationName) " +
-                                "AND (a.startDateTime >= :startDateTime AND a.endDateTime <= :endDateTime OR a.availabilityId IS NULL)",
+                                "AND (a.startDateTime >= :startDateTime " + 
+                                "AND a.endDateTime <= :endDateTime OR a.availabilityId IS NULL)",
                         Tutor.class)
                 .setParameter("specializationName", specializationName.toLowerCase())
                 .setParameter("startDateTime", startDateTime)
@@ -2405,7 +2643,8 @@ public class StudentController {
     }
 
     @PostMapping("/reservation/{id}/cancel")
-    public PlanResponseDTO cancelReservation(@PathVariable(name = "id") Long id, Authentication authentication) {
+    public PlanResponseDTO cancelReservation(@PathVariable(name = "id") Long id,
+                                             Authentication authentication) {
         String email = authentication.getName();
         Student student = studentService.fromEmail(email);
         reservationService.cancelReservation(student, id);
@@ -2506,7 +2745,8 @@ public class TutorController {
     }
 
     @PutMapping("/account")
-    public TutorUpdateDTO updateTutorInfo(@Valid @RequestBody TutorUpdateDTO tutorData, Authentication authentication) {
+    public TutorUpdateDTO updateTutorInfo(@Valid @RequestBody TutorUpdateDTO tutorData,
+                                          Authentication authentication) {
         String email = authentication.getName();
         return tutorService.updateTutorInfo(tutorService.fromEmail(email), tutorData);
     }
@@ -2540,9 +2780,12 @@ public class TutorController {
     }
 
     @PostMapping("/absence")
-    public List<AbsenceDTO> addAbsence(@RequestBody @Valid AbsenceDTO absenceDTO, Authentication authentication) {
+    public List<AbsenceDTO> addAbsence(@RequestBody @Valid AbsenceDTO absenceDTO,
+                                       Authentication authentication) {
         String email = authentication.getName();
-        return absenceService.addAbsence(tutorService.fromEmail(email), absenceDTO.getStart(), absenceDTO.getEnd());
+        return absenceService.addAbsence(tutorService.fromEmail(email),
+                absenceDTO.getStart(),
+                absenceDTO.getEnd());
     }
 
     @DeleteMapping("/absence/{absenceId}")
@@ -2585,8 +2828,7 @@ public class TutorController {
 Poniżej znajdują się klasy DTO używane w aplikacji.
 Z racji tego, że są to zwykłe struktury danych,
 nie zawierają logiki,
-a jedynie pola i metody dostępowe.
-Odpuszcamy zatem ich wnikliwego omówienia.
+a jedynie pola i metody dostępowe odpuszczamy sobie ich wnikliwego opisu
 
 
 ## AbsenceDTO
@@ -2622,7 +2864,7 @@ public class AbsenceDTO {
     public LocalDateTime getStart() {
         return start;
     }
-
+    
     public void setStart(LocalDateTime start) {
         this.start = start;
     }
@@ -2732,26 +2974,12 @@ public class NewReservationDTO {
     private Long availabilityId;
 
     @NotNull(message = "Specialization ID is required")
-    private Long specializationId;
+    private String specializationName;
 
     public NewReservationDTO() {
     }
 
-    public Long getAvailabilityId() {
-        return availabilityId;
-    }
-
-    public Long getReservationId() {
-        return reservationId;
-    }
-
-    public Long getSpecializationId() {
-        return specializationId;
-    }
-
-    public void setReservationId(Long reservationId) {
-        this.reservationId = reservationId;
-    }
+    // getters and setters
 }
 
 ```
@@ -2770,13 +2998,7 @@ public class NewReservationsDTO {
     public NewReservationsDTO() {
     }
 
-    public List<NewReservationDTO> getReservations() {
-        return reservations;
-    }
-
-    public void setReservations(List<NewReservationDTO> reservations) {
-        this.reservations = reservations;
-    }
+    // getters and setters
 }
 
 ```
@@ -2835,21 +3057,7 @@ public class StatusChangeDTO {
     public StatusChangeDTO() {
     }
 
-    public Long getReservationId() {
-        return reservationId;
-    }
-
-    public void setReservationId(Long reservationId) {
-        this.reservationId = reservationId;
-    }
-
-    public ReservationStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ReservationStatus status) {
-        this.status = status;
-    }
+    // getters and setters
 }
 
 ```
@@ -2893,7 +3101,13 @@ public class StudentRegisterDTO implements Serializable {
     @NotNull(message = "Student level is required")
     private StudentLevel level;
 
-    public StudentRegisterDTO(String firstName, String lastName, String phone, String email, String password, LocalDate birthDate, StudentLevel level) {
+    public StudentRegisterDTO(String firstName, 
+                              String lastName,
+                              String phone,
+                              String email,
+                              String password,
+                              LocalDate birthDate,
+                              StudentLevel level) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.phone = phone;
@@ -2911,12 +3125,18 @@ public class StudentRegisterDTO implements Serializable {
 ```
 
 ## StudentUpdateDTO.java
+
 ```java
 package org.tutorBridge.dto;
 
+import org.tutorBridge.validation.NullOrNotEmpty;
+
 public class StudentUpdateDTO implements Serializable {
+    @NullOrNotEmpty
     private String firstName;
+    @NullOrNotEmpty
     private String lastName;
+
     @PhoneNumber
     private String phone;
     @Past(message = "Birthdate must be in the past")
@@ -3026,7 +3246,14 @@ public class TutorRegisterDTO implements Serializable {
     private Set<String> specializations;
     private String bio;
 
-    public TutorRegisterDTO(String firstName, String lastName, String phone, String email, String password, LocalDate birthDate, Set<String> specializations, String bio) {
+    public TutorRegisterDTO(String firstName,
+                            String lastName,
+                            String phone,
+                            String email,
+                            String password,
+                            LocalDate birthDate,
+                            Set<String> specializations,
+                            String bio) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.phone = phone;
@@ -3061,13 +3288,7 @@ public class TutorSearchRequestDTO implements Serializable {
     public TutorSearchRequestDTO() {
     }
 
-    public Set<String> getSpecializations() {
-        return specializations;
-    }
-
-    public void setSpecializations(Set<String> specializations) {
-        this.specializations = specializations;
-    }
+    // getters and setters
 }
 
 ```
@@ -3117,8 +3338,12 @@ public class TutorSpecializationDTO implements Serializable {
 package org.tutorBridge.dto;
 
 public class TutorUpdateDTO implements Serializable {
+    @NullOrNotEmpty
     private String firstName;
+
+    @NullOrNotEmpty
     private String lastName;
+    
     @PhoneNumber
     private String phone;
     @Past(message = "Birthdate must be in the past")
@@ -3129,7 +3354,12 @@ public class TutorUpdateDTO implements Serializable {
     public TutorUpdateDTO() {
     }
 
-    public TutorUpdateDTO(String firstName, String lastName, String phone, LocalDate birthDate, Set<String> specializations, String bio) {
+    public TutorUpdateDTO(String firstName,
+                          String lastName,
+                          String phone,
+                          LocalDate birthDate,
+                          Set<String> specializations,
+                          String bio) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.phone = phone;
@@ -3235,3 +3465,5 @@ public class Application {
 }
 
 ```
+
+

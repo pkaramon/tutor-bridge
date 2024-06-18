@@ -29,36 +29,11 @@ public class TutorRepo extends GenericRepo<Tutor, Long> {
     }
 
 
-    public boolean hasAbsenceDuring(Tutor tutor, LocalDateTime start, LocalDateTime end) {
-        TypedQuery<Absence> query = em.createQuery(
-                "FROM Absence a WHERE a.tutor = :tutor AND a.startDate <= :end AND a.endDate >= :start",
-                Absence.class
-        );
-        query.setParameter("tutor", tutor);
-        query.setParameter("start", start);
-        query.setParameter("end", end);
-        List<Absence> results = query.getResultList();
-        return !results.isEmpty();
-    }
-
-    public boolean hasConflictingReservation(Tutor tutor, LocalDateTime start, LocalDateTime end) {
-        TypedQuery<Reservation> query = em.createQuery(
-                "FROM Reservation r WHERE r.tutor = :tutor AND r.startDateTime < :end AND r.endDateTime > :start",
-                Reservation.class
-        );
-        query.setParameter("tutor", tutor);
-        query.setParameter("start", start);
-        query.setParameter("end", end);
-        List<Reservation> results = query.getResultList();
-        return !results.isEmpty();
-    }
-
-
     public List<Tutor> findTutorsWithAvailabilities(String specializationName, LocalDateTime startDateTime, LocalDateTime endDateTime) {
         return em.createQuery(
                         "SELECT DISTINCT t FROM Tutor t " +
                                 "JOIN t.specializations s " +
-                                "LEFT JOIN FETCH t.availabilities a " +
+                                "JOIN FETCH t.availabilities a " +
                                 "WHERE lower(s.name) = lower(:specializationName) " +
                                 "AND (a.startDateTime >= :startDateTime AND a.endDateTime <= :endDateTime OR a.availabilityId IS NULL)",
                         Tutor.class)

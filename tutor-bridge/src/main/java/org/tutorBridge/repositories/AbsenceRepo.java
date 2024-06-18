@@ -41,4 +41,12 @@ public class AbsenceRepo extends GenericRepo<Absence, Long> {
         List<Absence> results = query.getResultList();
         return !results.isEmpty();
     }
+
+    public void deleteOverlapping(Tutor tutor, LocalDateTime start, LocalDateTime end) {
+        em.createQuery("DELETE FROM Absence a WHERE a.tutor = :tutor AND a.startDate < :end AND a.endDate > :start")
+                .setParameter("tutor", tutor)
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .executeUpdate();
+    }
 }
