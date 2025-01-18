@@ -1,8 +1,8 @@
 # Bazy danych 2 - projekt TutorBridge
 
 # Skład grupy
-- Piotr Karamon(piotrkaramon@student.agh.edu.pl)
-- Tomasz Żmuda(tzmuda@student.agh.edu.pl)
+- Piotr Karamon
+- Tomasz Żmuda
 
 #  Tytuł(temat) projektu
 
